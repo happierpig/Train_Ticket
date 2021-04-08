@@ -1,4 +1,4 @@
-# Install script for directory: /Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/Train_Ticket
+# Install script for directory: /Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/Train_Ticket/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
