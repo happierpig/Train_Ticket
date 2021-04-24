@@ -1,8 +1,0 @@
-//
-// Created by 赵先生 on 2021/4/8.
-//
-
-#ifndef TRAIN_TICKET_DISKCACHE_HPP
-#define TRAIN_TICKET_DISKCACHE_HPP
-
-#endif //TRAIN_TICKET_DISKCACHE_HPP
