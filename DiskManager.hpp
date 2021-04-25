@@ -104,7 +104,13 @@ public:
         file.read(reinterpret_cast<char *>(&temp),sizeof(temp));
         return temp;
     }
-
+    int tellp(){
+        if(nowPtr >= 0) return nowPtr;
+        else{
+            file.seekp(0,ios::end);
+            return file.tellp();
+        }
+    }
     void setInfo(const basicInfo & info){
         file.seekp(0,ios::beg);
         file.write(reinterpret_cast<char *>(&info),sizeof(info));
