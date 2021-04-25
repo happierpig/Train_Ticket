@@ -6,13 +6,3 @@
 
 #IncludeRegexTransform: 
 
-/Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/Myexception.hpp
-cstring
--
-
-/Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/main.cpp
-iostream
--
-Myexception.hpp
-/Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/Myexception.hpp
-

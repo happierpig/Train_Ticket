@@ -143,87 +143,6 @@ Train_Ticket/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Train_Ticket.dir/build.make CMakeFiles/Train_Ticket.dir/build
 .PHONY : Train_Ticket/fast
 
-BPlusTree.o: BPlusTree.cpp.o
-
-.PHONY : BPlusTree.o
-
-# target to build an object file
-BPlusTree.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Train_Ticket.dir/build.make CMakeFiles/Train_Ticket.dir/BPlusTree.cpp.o
-.PHONY : BPlusTree.cpp.o
-
-BPlusTree.i: BPlusTree.cpp.i
-
-.PHONY : BPlusTree.i
-
-# target to preprocess a source file
-BPlusTree.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Train_Ticket.dir/build.make CMakeFiles/Train_Ticket.dir/BPlusTree.cpp.i
-.PHONY : BPlusTree.cpp.i
-
-BPlusTree.s: BPlusTree.cpp.s
-
-.PHONY : BPlusTree.s
-
-# target to generate assembly for a file
-BPlusTree.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Train_Ticket.dir/build.make CMakeFiles/Train_Ticket.dir/BPlusTree.cpp.s
-.PHONY : BPlusTree.cpp.s
-
-DiskCache.o: DiskCache.cpp.o
-
-.PHONY : DiskCache.o
-
-# target to build an object file
-DiskCache.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Train_Ticket.dir/build.make CMakeFiles/Train_Ticket.dir/DiskCache.cpp.o
-.PHONY : DiskCache.cpp.o
-
-DiskCache.i: DiskCache.cpp.i
-
-.PHONY : DiskCache.i
-
-# target to preprocess a source file
-DiskCache.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Train_Ticket.dir/build.make CMakeFiles/Train_Ticket.dir/DiskCache.cpp.i
-.PHONY : DiskCache.cpp.i
-
-DiskCache.s: DiskCache.cpp.s
-
-.PHONY : DiskCache.s
-
-# target to generate assembly for a file
-DiskCache.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Train_Ticket.dir/build.make CMakeFiles/Train_Ticket.dir/DiskCache.cpp.s
-.PHONY : DiskCache.cpp.s
-
-DiskManager.o: DiskManager.cpp.o
-
-.PHONY : DiskManager.o
-
-# target to build an object file
-DiskManager.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Train_Ticket.dir/build.make CMakeFiles/Train_Ticket.dir/DiskManager.cpp.o
-.PHONY : DiskManager.cpp.o
-
-DiskManager.i: DiskManager.cpp.i
-
-.PHONY : DiskManager.i
-
-# target to preprocess a source file
-DiskManager.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Train_Ticket.dir/build.make CMakeFiles/Train_Ticket.dir/DiskManager.cpp.i
-.PHONY : DiskManager.cpp.i
-
-DiskManager.s: DiskManager.cpp.s
-
-.PHONY : DiskManager.s
-
-# target to generate assembly for a file
-DiskManager.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Train_Ticket.dir/build.make CMakeFiles/Train_Ticket.dir/DiskManager.cpp.s
-.PHONY : DiskManager.cpp.s
-
 main.o: main.cpp.o
 
 .PHONY : main.o
@@ -260,15 +179,6 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... Train_Ticket"
-	@echo "... BPlusTree.o"
-	@echo "... BPlusTree.i"
-	@echo "... BPlusTree.s"
-	@echo "... DiskCache.o"
-	@echo "... DiskCache.i"
-	@echo "... DiskCache.s"
-	@echo "... DiskManager.o"
-	@echo "... DiskManager.i"
-	@echo "... DiskManager.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

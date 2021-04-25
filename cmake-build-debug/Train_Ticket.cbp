@@ -80,19 +80,7 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/BPlusTree.cpp">
-			<Option target="Train_Ticket"/>
-		</Unit>
 		<Unit filename="/Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/BPlusTree.hpp">
-			<Option target="Train_Ticket"/>
-		</Unit>
-		<Unit filename="/Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/DiskCache.cpp">
-			<Option target="Train_Ticket"/>
-		</Unit>
-		<Unit filename="/Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/DiskCache.hpp">
-			<Option target="Train_Ticket"/>
-		</Unit>
-		<Unit filename="/Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/DiskManager.cpp">
 			<Option target="Train_Ticket"/>
 		</Unit>
 		<Unit filename="/Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/DiskManager.hpp">

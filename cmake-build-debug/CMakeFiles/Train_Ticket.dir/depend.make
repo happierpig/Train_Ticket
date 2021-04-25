@@ -3,12 +3,6 @@
 
 CMakeFiles/Train_Ticket.dir/BPlusTree.cpp.o: ../BPlusTree.cpp
 
-CMakeFiles/Train_Ticket.dir/DiskCache.cpp.o: ../DiskCache.cpp
-CMakeFiles/Train_Ticket.dir/DiskCache.cpp.o: ../DiskCache.hpp
-
-CMakeFiles/Train_Ticket.dir/DiskManager.cpp.o: ../DiskManager.cpp
-CMakeFiles/Train_Ticket.dir/DiskManager.cpp.o: ../DiskManager.hpp
-
-CMakeFiles/Train_Ticket.dir/main.cpp.o: ../Myexception.hpp
+CMakeFiles/Train_Ticket.dir/main.cpp.o: ../DiskManager.hpp
 CMakeFiles/Train_Ticket.dir/main.cpp.o: ../main.cpp
 

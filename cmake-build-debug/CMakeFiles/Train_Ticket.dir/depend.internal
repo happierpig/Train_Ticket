@@ -3,12 +3,6 @@
 
 CMakeFiles/Train_Ticket.dir/BPlusTree.cpp.o
  /Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/BPlusTree.cpp
-CMakeFiles/Train_Ticket.dir/DiskCache.cpp.o
- /Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/DiskCache.cpp
- /Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/DiskCache.hpp
-CMakeFiles/Train_Ticket.dir/DiskManager.cpp.o
- /Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/DiskManager.cpp
- /Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/DiskManager.hpp
 CMakeFiles/Train_Ticket.dir/main.cpp.o
- /Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/Myexception.hpp
+ /Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/DiskManager.hpp
  /Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/main.cpp

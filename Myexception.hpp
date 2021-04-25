@@ -1,7 +1,6 @@
 //
 // Created by 赵先生 on 2021/4/8.
 //
-
 #ifndef TRAIN_TICKET_MYEXCEPTION_HPP
 #define TRAIN_TICKET_MYEXCEPTION_HPP
 #include <cstring>
