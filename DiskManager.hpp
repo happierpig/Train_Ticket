@@ -29,30 +29,33 @@ private:
     void addSpare(int index){
         if(nowPtr < 0){
             file.seekp(index,ios::beg);
-            file.write(reinterpret_cast<char *>(&nowPtr),sizeof(nowPtr));
+            file.write(reinterpret_cast<const char *>(&nowPtr),sizeof(nowPtr));
             nowPtr = index;
             nextPtr = -1;
             return;
         }else{
             nextPtr = nowPtr;
             file.seekp(index,ios::beg);
-            file.write(reinterpret_cast<char *>(&nowPtr),sizeof(nowPtr));
+            file.write(reinterpret_cast<const char *>(&nowPtr),sizeof(nowPtr));
             nowPtr = index;
             return;
         }
     }
 public:
-    explicit DiskManager(string & _name):fileName(_name){
+    DiskManager() = delete;
+    explicit DiskManager(const string & _name):fileName(_name){
         file.open(fileName,ios::in);
         if(file.fail()){
             file.clear();
-            file.open(fileName,ios::in | ios::out);
+            file.open(fileName,ios::out);
+            file.close();
+            file.open(fileName,ios::out | ios::in | ios::binary);
             nowPtr = -1;nextPtr = -1;
             basicInfo temp;
             file.seekp(0,ios::beg);
-            file.write(reinterpret_cast<char *>(&temp),sizeof(temp));
+            file.write(reinterpret_cast<const char *>(&temp),sizeof(temp));
             file.seekp(sizeof(temp),ios::beg);
-            file.write(reinterpret_cast<char *>(&nowPtr),sizeof(nowPtr));
+            file.write(reinterpret_cast<const char *>(&nowPtr),sizeof(nowPtr));
         }else{
             file.close();
             file.open(fileName,ios::in | ios::out | ios::binary);
@@ -66,7 +69,7 @@ public:
     }
     ~DiskManager(){
         file.seekp(sizeof(basicInfo),ios::beg);
-        file.write(reinterpret_cast<char *>(&nowPtr),sizeof(nowPtr));
+        file.write(reinterpret_cast<const char *>(&nowPtr),sizeof(nowPtr));
         file.close();
     }
 
@@ -76,21 +79,24 @@ public:
         if(nowPtr < 0){
             file.seekp(0,ios::end);
             temp = file.tellp();
-            file.write(reinterpret_cast<char *>(&data),sizeof(data));
+            file.write(reinterpret_cast<const char *>(&data),sizeof(data));
             return temp;
         }else{
             temp = nowPtr;
             file.seekp(temp,ios::beg);
-            file.write(reinterpret_cast<char *>(&data),sizeof(data));
+            file.write(reinterpret_cast<const char *>(&data),sizeof(data));
             setSparePointer();
             return temp;
         }
     }
-
+    void write(const T & data,int position){
+        file.seekp(position,ios::beg);
+        file.write(reinterpret_cast<const char *>(&data),sizeof(data));
+    }
     T read(int index){
         T temp;
         file.seekp(index,ios::beg);
-        file.read(reinterpret_cast<char *>(&temp),sizeof(temp));
+        file.read(reinterpret_cast< char *>(&temp),sizeof(temp));
         return temp;
     }
 
@@ -101,7 +107,7 @@ public:
     basicInfo tellInfo(){
         basicInfo temp;
         file.seekp(0,ios::beg);
-        file.read(reinterpret_cast<char *>(&temp),sizeof(temp));
+        file.read(reinterpret_cast< char *>(&temp),sizeof(temp));
         return temp;
     }
     int tellp(){
@@ -113,7 +119,7 @@ public:
     }
     void setInfo(const basicInfo & info){
         file.seekp(0,ios::beg);
-        file.write(reinterpret_cast<char *>(&info),sizeof(info));
+        file.write(reinterpret_cast<const char *>(&info),sizeof(info));
     }
 };
 #endif //TRAIN_TICKET_DISKMANAGER_HPP

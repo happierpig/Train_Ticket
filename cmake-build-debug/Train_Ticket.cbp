@@ -89,6 +89,9 @@
 		<Unit filename="/Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/Myexception.hpp">
 			<Option target="Train_Ticket"/>
 		</Unit>
+		<Unit filename="/Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/functions.hpp">
+			<Option target="Train_Ticket"/>
+		</Unit>
 		<Unit filename="/Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/main.cpp">
 			<Option target="Train_Ticket"/>
 		</Unit>
