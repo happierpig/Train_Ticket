@@ -34,8 +34,8 @@ private:
         int rightBrother = -1;
         int dataSize = 0;
         Key dataKey[MAX_RECORD];
-        int dataPosition[MAX_RECORD]; // position in dataDisk
-        
+        Data dataSet[MAX_RECORD]; // data is directly stored in leaf node which accelerate the speed of reading disk
+
     };
     class Node{
     public:
@@ -54,17 +54,16 @@ private:
     basicInfo treeInfo;
     DiskManager<leafNode,basicInfo> leafDisk;
     DiskManager<Node,basicInfo> nodeDisk;
-    DiskManager<Data,basicInfo> dataDisk;
-    // treeInfo is stored in dataDisk and updated in dataDisk
+    // treeInfo is stored in nodeDisk and updated in nodeDisk
 private:
     // below are private functions
 public:
     // interfaces for my B+Tree
-    explicit BPlusTree(string & _name):leafDisk(_name + "_leaf.dat"),nodeDisk(_name + "_node.dat"),dataDisk(_name + "_data.dat"){
-        treeInfo = dataDisk.tellInfo();
+    explicit BPlusTree(string & _name):leafDisk(_name + "_leaf.dat"),nodeDisk(_name + "_node.dat"){
+        treeInfo = nodeDisk.tellInfo();
     }
     ~BPlusTree(){
-        dataDisk.setInfo(treeInfo);
+        nodeDisk.setInfo(treeInfo);
     }
     int size() const{
         return treeInfo.size;
@@ -73,18 +72,23 @@ public:
         return treeInfo.size == 0;
     }
     //todo
+    //parameter: the key and the data object itself
     void insert(const Key & _key,const Data & _data){
 
     }
+    // delete all data associated with the provided key
     void erase(const Key & _key){
 
     }
+    // delete the specific data with the key
     void erase(const Key & _key,const Data & _data){
 
     }
+    // find all data associated with the key
     void find(const Key & _key,vector<Data> & vec_ans){
 
     }
+    // find all data which owns key ranged from key1 to key2
     void find(const Key & _key1,const Key & _key2,vector<Data> & vec_ans){
 
     }
