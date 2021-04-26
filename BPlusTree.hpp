@@ -35,7 +35,7 @@ private:
         int dataSize = 0;
         Key dataKey[MAX_RECORD];
         int dataPosition[MAX_RECORD]; // position in dataDisk
-
+        
     };
     class Node{
     public:
@@ -59,6 +59,7 @@ private:
 private:
     // below are private functions
 public:
+    // interfaces for my B+Tree
     explicit BPlusTree(string & _name):leafDisk(_name + "_leaf.dat"),nodeDisk(_name + "_node.dat"),dataDisk(_name + "_data.dat"){
         treeInfo = dataDisk.tellInfo();
     }
@@ -70,6 +71,22 @@ public:
     }
     bool empty() const{
         return treeInfo.size == 0;
+    }
+    //todo
+    void insert(const Key & _key,const Data & _data){
+
+    }
+    void erase(const Key & _key){
+
+    }
+    void erase(const Key & _key,const Data & _data){
+
+    }
+    void find(const Key & _key,vector<Data> & vec_ans){
+
+    }
+    void find(const Key & _key1,const Key & _key2,vector<Data> & vec_ans){
+
     }
 };
 
