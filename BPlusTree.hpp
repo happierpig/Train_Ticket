@@ -87,11 +87,11 @@ private:
 
         void show() const {
                 cout << "[leafNode]" << endl;
-                cout << "offset: " << position << endl;
+                cout << "position: " << position << endl;
                 cout << "father: " << father << endl;
                 cout << "leftBrother: " << leftBrother << endl;
                 cout << "rightBrother: " << rightBrother << endl;
-                cout << "dataNumber: " << dataSize << endl;
+                cout << "dataSize: " << dataSize << endl;
                 cout << "leafKey & leafData:" << endl;
                 for (int i = 0; i < dataSize; i++) {
                     cout << "leafKey: " << dataKey[i] << "\t\t\t\t\t\t\t\t\t\t\t" << "leafData: " << dataSet[i] << endl;
@@ -129,6 +129,7 @@ private:
             theTree->nodeDisk.write(*this,this->position);
         }
         void splitNode(BPlusTree * theTree){
+            //todo : modify children's father positions
             //relocation the root information
             if(this->position == theTree->treeInfo.root){
                 Node newRoot;
@@ -153,6 +154,15 @@ private:
             this->rightBrother = tmpNode.position;
             for(int i = 0;i < tmpNode.childSize;++i){
                 tmpNode.childPosition[i] = this->childPosition[MIN_CHILD+i];
+                if(tmpNode.childIsLeaf){
+                    leafNode modifyFather = theTree->leafDisk.read(tmpNode.childPosition[i]);
+                    modifyFather.father = tmpNode.position;
+                    theTree->leafDisk.write(modifyFather,modifyFather.position);
+                }else{
+                    Node modifyFather = theTree->nodeDisk.read(tmpNode.childPosition[i]);
+                    modifyFather.father = tmpNode.position;
+                    theTree->nodeDisk.write(modifyFather,modifyFather.position);
+                }
             }
             for(int i = 0; i < tmpNode.childSize-1;++i){
                 tmpNode.nodeKey[i] = this->nodeKey[MIN_CHILD+i];
@@ -169,18 +179,18 @@ private:
 
         void show() const {
             cout << "[internalNode]" << endl;
-            cout << "offset: " << position << endl;
+            cout << "position: " << position << endl;
             cout << "father: " << father << endl;
             cout << "leftBrother: " << leftBrother << endl;
             cout << "rightBrother: " << rightBrother << endl;
             cout << (childIsLeaf ? "child node is leaf" : "child node is internal") << endl;
             cout << "childSize: " << childSize << endl;
-            cout << "nodeKey & childNode:" << endl;
+            cout << "nodeKey & childPosition:" << endl;
             for (int i = 0; i < childSize - 1; i++) {
-                cout << "\t\t\t\t\t\t\t\t\t\t\t" << "childNode: " << childPosition[i] << endl;
+                cout <<  "childNode: " << childPosition[i] << endl;
                 cout << "nodeKey: " << nodeKey[i] << endl;
             }
-            cout << "\t\t\t\t\t\t\t\t\t\t\t" << "childNode: " << childPosition[childSize-1] << endl;
+            cout  << "childNode: " << childPosition[childSize-1] << endl;
             cout << endl;
 
         }

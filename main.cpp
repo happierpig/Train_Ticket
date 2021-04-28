@@ -2,7 +2,7 @@
 #include "BPlusTree.hpp"
 #include "functions.hpp"
 int main(){
-    BPlusTree<int,int,3,3> myTree("test");
+    BPlusTree<int,int,4,3> myTree("test");
     while (true){
         int x;
         std::cin >> x;
