@@ -93,7 +93,7 @@ public:
         file.seekp(position,ios::beg);
         file.write(reinterpret_cast<const char *>(&data),sizeof(data));
     }
-    T read(int index){
+    T read(int index) {
         T temp;
         file.seekp(index,ios::beg);
         file.read(reinterpret_cast< char *>(&temp),sizeof(temp));

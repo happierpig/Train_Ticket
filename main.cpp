@@ -2,8 +2,13 @@
 #include "BPlusTree.hpp"
 #include "functions.hpp"
 int main(){
-    BPlusTree<int,int> myTree("test");
-    myTree.createRoot(5,5);
-    std::cout << myTree.findLeaf(3);
+    BPlusTree<int,int,3,3> myTree("test");
+    while (true){
+        int x;
+        std::cin >> x;
+        if(x == -1) break;
+        myTree.insert(x,x);
+        myTree.show();
+    }
     return 0;
 }

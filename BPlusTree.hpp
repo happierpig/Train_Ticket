@@ -66,7 +66,7 @@ private:
             newNode.leftBrother = this->position;
             newNode.rightBrother = this->rightBrother;
             if(this->rightBrother >= 0){
-                leafNode tmpNode(theTree->leafDisk.read(this->rightBrother));
+                leafNode tmpNode = theTree->leafDisk.read(this->rightBrother);
                 tmpNode.leftBrother = newNode.position;
                 theTree->leafDisk.write(tmpNode,this->rightBrother);
             }
@@ -79,7 +79,7 @@ private:
             theTree->leafDisk.write(newNode);
             theTree->leafDisk.write(*this,this->position);
             // update fatherNode
-            Node fatherNode(theTree->nodeDisk.read(newNode.father));
+            Node fatherNode = (theTree->nodeDisk.read(newNode.father));
             fatherNode.addElement(newNode.dataKey[0],newNode.position,theTree);
         }
 
@@ -123,13 +123,22 @@ private:
             childPosition[index+1] = _position;
             ++childSize;
             if(childSize == MAX_CHILD){
-                this->splitNode();
+                this->splitNode(theTree);
                 return;
             }
             theTree->nodeDisk.write(*this,this->position);
         }
         void splitNode(BPlusTree * theTree){
-            //todo: update the root
+            //relocation the root information
+            if(this->position == theTree->treeInfo.root){
+                Node newRoot;
+                newRoot.position = theTree->nodeDisk.tellp();
+                newRoot.childSize = 1;
+                newRoot.childPosition[0] = this->position;
+                theTree->nodeDisk.write(newRoot);
+                theTree->treeInfo.root = newRoot.position;
+                this->father = theTree->treeInfo.root;
+            }
             Node tmpNode;
             tmpNode.father = this->father;
             tmpNode.position = theTree->nodeDisk.tellp();
@@ -137,9 +146,9 @@ private:
             tmpNode.childSize = MAX_CHILD - MIN_CHILD; // keysize = MAX_CHILD - MIN_CHILD - 1
             tmpNode.childIsLeaf = this->childIsLeaf;
             if(this->rightBrother >= 0){
-                leafNode tmpNode1(theTree->nodeDisk.read(this->rightBrother));
+                Node tmpNode1 = (theTree->nodeDisk.read(this->rightBrother));
                 tmpNode1.leftBrother = tmpNode.position;
-                theTree->leafDisk.write(tmpNode1,tmpNode1.position);
+                theTree->nodeDisk.write(tmpNode1,tmpNode1.position);
             }
             this->rightBrother = tmpNode.position;
             for(int i = 0;i < tmpNode.childSize;++i){
@@ -152,7 +161,7 @@ private:
             this->childSize = MIN_CHILD; // keysize == MIN_CHILD - 1;
             theTree->nodeDisk.write(tmpNode);
             theTree->nodeDisk.write(*this,this->position);
-            Node fatherNode(theTree->nodeDisk.read(tmpNode.father));
+            Node fatherNode = (theTree->nodeDisk.read(tmpNode.father));
             fatherNode.addElement(this->nodeKey[MIN_CHILD-1],tmpNode.position,theTree);
         }
 
@@ -200,12 +209,15 @@ private:
         ++newLeafNode.dataSize;
         newLeafNode.dataKey[0] = _key;
         newLeafNode.dataSet[0] = _data;
-        treeInfo.root = newRoot.position;treeInfo.head = newLeafNode.position;treeInfo.size = 1;
+        treeInfo.root = newRoot.position;
+        treeInfo.head = newLeafNode.position;
+        treeInfo.size = 1;
         //write in diskManager
         nodeDisk.write(newRoot);
         leafDisk.write(newLeafNode);
     }
     int findLeaf(const Key & _key){
+        if(treeInfo.root == -1) error("树为空");
         Node tmpNode = nodeDisk.read(this->treeInfo.root);
         while(!tmpNode.childIsLeaf){
             int index = upper_bound(tmpNode.nodeKey,tmpNode.childSize-1,_key);
@@ -232,7 +244,13 @@ public:
     //todo
     //parameter: the key and the data object itself
     void insert(const Key & _key,const Data & _data){
-
+        treeInfo.size++;
+        if(treeInfo.root == -1) createRoot(_key,_data);
+        else{
+            int leafPos = findLeaf(_key);
+            leafNode tmpLeaf = leafDisk.read(leafPos);
+            tmpLeaf.addElement(_key,_data,this);
+        }
     }
     // delete all data associated with the provided key
     void erase(const Key & _key){
@@ -255,7 +273,7 @@ public:
 
 #ifdef debug
 private:
-    void show(int offset, bool isLeaf) const {
+    void show(int offset, bool isLeaf)  {
         cout << "[pos] " << offset << endl;
         if (isLeaf) {
             leafNode tempNode = leafDisk.read(offset);
@@ -266,14 +284,14 @@ private:
             tempNode.show();
             cout << endl;
             for (int i = 0; i < tempNode.childSize; i++) {
-                if (tempNode.childNodeIsLeaf)show(tempNode.childNode[i], true);
-                else show(tempNode.childNode[i], false);
+                if (tempNode.childIsLeaf) show(tempNode.childPosition[i], true);
+                else show(tempNode.childPosition[i], false);
             }
         }
     };
 
 public:
-    void show() const {
+    void show() {
         cout << "[show]--------------------------------------------------------------------------------" << endl;
         show(treeInfo.root, false);
         cout << "[show]--------------------------------------------------------------------------------" << endl;
