@@ -15,6 +15,7 @@
 using std::string;
 using std::vector;
 using myFunctions::upper_bound;
+using myFunctions::lower_bound;
 using std::cout;
 using std::endl;
 
@@ -82,6 +83,21 @@ private:
             Node fatherNode = (theTree->nodeDisk.read(newNode.father));
             fatherNode.addElement(newNode.dataKey[0],newNode.position,theTree);
         }
+        void findElement(const Key & _key,vector<Data>& vec_ans,BPlusTree * theTree,bool left,bool right){
+            int pos1 = lower_bound(this->dataKey,this->dataSize,_key);
+            int pos2 = upper_bound(this->dataKey,this->dataSize,_key);
+            for(int i = pos1;i <= pos2 && i < this->dataSize;++i){
+                if(this->dataKey[i] == _key) vec_ans.push_back(this->dataSet[i]);
+            }
+            if(this->dataKey[0] == _key && this->leftBrother != -1 && left){
+                leafNode tmpNode = theTree->leafDisk.read(this->leftBrother);
+                tmpNode.findElement(_key,vec_ans,theTree,true,false);
+            }
+            if(this->dataKey[dataSize-1] == _key && this->rightBrother != -1 && right){
+                leafNode tmpNode = theTree->leafDisk.read(this->rightBrother);
+                tmpNode.findElement(_key,vec_ans,theTree,false,true);
+            }
+        }
 
 #ifdef debug
 
@@ -129,7 +145,6 @@ private:
             theTree->nodeDisk.write(*this,this->position);
         }
         void splitNode(BPlusTree * theTree){
-            //todo : modify children's father positions
             //relocation the root information
             if(this->position == theTree->treeInfo.root){
                 Node newRoot;
@@ -154,6 +169,7 @@ private:
             this->rightBrother = tmpNode.position;
             for(int i = 0;i < tmpNode.childSize;++i){
                 tmpNode.childPosition[i] = this->childPosition[MIN_CHILD+i];
+                // modify children's father position
                 if(tmpNode.childIsLeaf){
                     leafNode modifyFather = theTree->leafDisk.read(tmpNode.childPosition[i]);
                     modifyFather.father = tmpNode.position;
@@ -251,7 +267,6 @@ public:
     bool empty() const{
         return treeInfo.size == 0;
     }
-    //todo
     //parameter: the key and the data object itself
     void insert(const Key & _key,const Data & _data){
         treeInfo.size++;
@@ -263,16 +278,18 @@ public:
         }
     }
     // delete all data associated with the provided key
-    void erase(const Key & _key){
-
+    bool erase(const Key & _key){
+        
     }
     // delete the specific data with the key
-    void erase(const Key & _key,const Data & _data){
+    bool erase(const Key & _key,const Data & _data){
 
     }
     // find all data associated with the key
     void find(const Key & _key,vector<Data> & vec_ans){
-
+        int leafPosition = findLeaf(_key);
+        leafNode tmpLeafNode = leafDisk.read(leafPosition);
+        tmpLeafNode.findElement(_key,vec_ans,this,true,true);
     }
     // find all data which owns key ranged from key1 to key2
     void find(const Key & _key1,const Key & _key2,vector<Data> & vec_ans){
