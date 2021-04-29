@@ -3,24 +3,21 @@
 #include <vector>
 using std::vector;
 int main(){
-    BPlusTree<int,int,4,3> myTree("test");
-    while (true){
-        int x;
-        std::cin >> x;
-        if(x == -1) break;
-        if(x == 1) {
-            int value;std::cin >> value;
-            myTree.insert(value, value);
-            myTree.show();
+    BPlusTree<int,int,200,200> myTree("test");
+//    myTree.show();
+    int test = 0;
+    int bullet[100000] = {0};
+    srand(time(NULL));
+    while (++test < 100000){
+        int x = rand() % 90000;
+        bullet[x]++;
+        myTree.insert(x,x);
+        vector<int> vec_ans;
+        myTree.find(x,vec_ans);
+        if(bullet[x] == vec_ans.size()){
+            std::cout << "Test : " << test << " Bingo!" << "  number : " << x << "  size : " << bullet[x] <<std::endl;
         }
-        if(x == 2){
-            int target;
-            std::cin >> target;
-            vector<int> vec_ans;
-            myTree.find(target,vec_ans);
-            for(int i = 0;i < vec_ans.size();++i) std::cout << vec_ans[i] << ' ';
-            std::cout << std::endl;
-        }
+        else std::cout << "Test : " << test << " Failed!" << std::endl;
     }
     return 0;
 }

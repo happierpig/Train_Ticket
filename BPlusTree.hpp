@@ -277,10 +277,6 @@ public:
             tmpLeaf.addElement(_key,_data,this);
         }
     }
-    // delete all data associated with the provided key
-    bool erase(const Key & _key){
-        
-    }
     // delete the specific data with the key
     bool erase(const Key & _key,const Data & _data){
 
