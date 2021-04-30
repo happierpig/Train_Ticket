@@ -267,7 +267,7 @@ public:
     bool empty() const{
         return treeInfo.size == 0;
     }
-    //parameter: the key and the data object itself
+    //parameter: the key and  the data object itself
     void insert(const Key & _key,const Data & _data){
         treeInfo.size++;
         if(treeInfo.root == -1) createRoot(_key,_data);
