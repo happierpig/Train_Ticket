@@ -125,7 +125,7 @@ public:
         file.close();
         file.open(fileName,ios::out);
         file.close();
-        file.open(fileName,ios::in | ios::out | ios::binary);
+        file.open(fileName,ios::in | ios::out);
         nowPtr = -1;nextPtr = -1;
         basicInfo temp;
         file.seekp(0,ios::beg);
