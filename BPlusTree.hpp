@@ -146,10 +146,16 @@ private:
                     leftBro.dataSet[leftBro.dataSize+i] = this->dataSet[i];
                 }
                 leftBro.dataSize += this->dataSize;
-                // write back
+                // write back && modify the linkList
+                leftBro.rightBrother = this->rightBrother;
+                if(~this->rightBrother){
+                    leafNode tmprr = theTree->leafDisk.read(this->rightBrother);
+                    tmprr.leftBrother = leftBro.position;
+                    theTree->leafDisk.write(tmprr,tmprr.position);
+                }
                 theTree->leafDisk.write(leftBro,leftBro.position);
                 theTree->leafDisk.erase(this->position);
-                // todo : deleteElement int fatherNode including writing back into document
+                // deleteElement int fatherNode including writing back into document
                 Node fatherNode = theTree->nodeDisk.read(this->father);
                 int pos = upper_bound(fatherNode.nodeKey,fatherNode.childSize-1,tmpKey);
                 fatherNode.deleteElement(pos,theTree);
@@ -157,7 +163,49 @@ private:
             return true;
         }
         bool askRight(BPlusTree * theTree){
-
+            if(this->rightBrother == -1) return false;
+            leafNode rightBro = theTree->leafDisk.read(this->rightBrother);
+            if(rightBro.father != this->father) return false;
+            if(rightBro.dataSize > MIN_RECORD){ // borrow one record from right brother
+                //deal with this
+                this->dataKey[this->dataSize] = rightBro.dataKey[0];
+                this->dataSet[this->dataSize] = rightBro.dataSet[0];
+                for(int i = 0;i < rightBro.dataSize - 1;++i){
+                    rightBro.dataKey[i] = rightBro.dataKey[i+1];
+                    rightBro.dataSet[i] = rightBro.dataSet[i+1];
+                }
+                ++this->dataSize;--rightBro.dataSize;
+                //deal with father
+                Node fatherNode = theTree->nodeDisk.read(this->father);
+                int pos = upper_bound(fatherNode.nodeKey,fatherNode.childSize-1,this->dataKey[this->dataSize-2]);
+                fatherNode.nodeKey[pos] = rightBro.dataKey[0];
+                //write back
+                theTree->leafDisk.write(*this,this->position);
+                theTree->leafDisk.write(rightBro,rightBro.position);
+                theTree->nodeDisk.write(fatherNode,fatherNode.position);
+            }else{ // merge right brother and this into one leafNode
+                // merge two into one
+                Key tmpKey = this->dataKey[this->dataSize-1];
+                for(int i = 0;i < rightBro.dataSize;++i){
+                    this->dataKey[this->dataSize+i] = rightBro.dataKey[i];
+                    this->dataSet[this->dataSize+i] = rightBro.dataSet[i];
+                }
+                this->dataSize += rightBro.dataSize;
+                // write back && modify the linkList
+                this->rightBrother = rightBro.rightBrother;
+                if(~rightBro.rightBrother){
+                    leafNode tmprr = theTree->leafDisk.read(rightBro.rightBrother);
+                    tmprr.leftBrother = this->position;
+                    theTree->leafDisk.write(tmprr,tmprr.position);
+                }
+                theTree->leafDisk.write(*this,this->position);
+                theTree->leafDisk.erase(rightBro.position);
+                // deleteElement int fatherNode including writing back into document
+                Node fatherNode = theTree->nodeDisk.read(this->father);
+                int pos = upper_bound(fatherNode.nodeKey,fatherNode.childSize-1,tmpKey);
+                fatherNode.deleteElement(pos,theTree);
+            }
+            return true;
         }
         void deleteElement(int keyPos,BPlusTree * theTree){
             for(int i = keyPos;i < dataSize - 1;++i){
@@ -265,11 +313,150 @@ private:
             Node fatherNode = (theTree->nodeDisk.read(tmpNode.father));
             fatherNode.addElement(this->nodeKey[MIN_CHILD-1],tmpNode.position,theTree);
         }
+        //todo : take the root into consideration
         bool askLeft(BPlusTree * theTree){
-
+            if(this->leftBrother == -1) return false;
+            Node leftBro = theTree->nodeDisk.read(this->leftBrother);
+            if(leftBro.father != this->father) return false;
+            if(leftBro.childSize > MIN_CHILD){ // borrow one node from left brother,that means child's key move upward and father key move down
+                // update father node
+                Node fatherNode = theTree->nodeDisk.read(this->father);
+                int keyPos = upper_bound(fatherNode.nodeKey,fatherNode.childSize-1,leftBro.nodeKey[leftBro.childSize-2]);
+                Key targetKey = fatherNode.nodeKey[keyPos];
+                fatherNode.nodeKey[keyPos] = leftBro.nodeKey[leftBro.childSize-2];
+                theTree->nodeDisk.write(fatherNode,fatherNode.position);
+                // update *this
+                for(int i = this->childSize-1;i > 0;--i){
+                    this->nodeKey[i] = this->nodeKey[i-1];
+                }
+                for(int i = this->childSize;i > 0;--i){
+                    this->childPosition[i] = this->childPosition[i-1];
+                }
+                this->nodeKey[0] = targetKey;
+                this->childPosition[0] = leftBro.childPosition[leftBro.childSize-1];
+                ++this->childSize;
+                theTree->nodeDisk.write(*this,this->position);
+                // update left brother
+                --leftBro.childSize;
+                theTree->nodeDisk.write(leftBro,leftBro.position);
+                // update child's father
+                if(this->childIsLeaf){
+                    leafNode childNode = theTree->leafDisk.read(this->childPosition[0]);
+                    childNode.father = this->position;
+                    theTree->leafDisk.write(childNode,childNode.position);
+                }else{
+                    Node childNode = theTree->nodeDisk.read(this->childPosition[0]);
+                    childNode.father = this->position;
+                    theTree->nodeDisk.write(childNode,childNode.position);
+                }
+            }else{ // merge two nodes
+                // update father node in the end
+                Node fatherNode = theTree->nodeDisk.read(this->father);
+                int keyPos = upper_bound(fatherNode.nodeKey,fatherNode.childSize-1,leftBro.nodeKey[leftBro.childSize-2]);
+                Key downKey = fatherNode.nodeKey[keyPos];
+                // merge two into one
+                leftBro.nodeKey[leftBro.childSize-1] = downKey;
+                for(int i = 0;i < this->childSize-1;++i){
+                    leftBro.nodeKey[i+leftBro.childSize] = this->nodeKey[i];
+                }
+                for(int i = 0;i < this->childSize;++i){
+                    leftBro.childPosition[i+leftBro.childSize] = this->childPosition[i];
+                    if(this->childIsLeaf){
+                        leafNode tmp = theTree->leafDisk.read(this->childPosition[i]);
+                        tmp.father = leftBro.position;
+                        theTree->leafDisk.write(tmp,tmp.position);
+                    }else{
+                        Node tmp = theTree->nodeDisk.read(this->childPosition[i]);
+                        tmp.father = leftBro.position;
+                        theTree->nodeDisk.write(tmp,tmp.position);
+                    }
+                }
+                leftBro.childSize += this->childSize;
+                // write back && modify the linkList
+                leftBro.rightBrother = this->rightBrother;
+                if(~this->rightBrother){
+                    Node tmprr = theTree->nodeDisk.read(this->rightBrother);
+                    tmprr.leftBrother = leftBro.position;
+                    theTree->nodeDisk.write(tmprr,tmprr.position);
+                }
+                theTree->nodeDisk.write(leftBro,leftBro.position);
+                theTree->nodeDisk.erase(this->position);
+                // delete the element in father node
+                fatherNode.deleteElement(keyPos,theTree);
+            }
+            return true;
         }
         bool askRight(BPlusTree * theTree){
-
+            if(this->rightBrother == -1) return false;
+            Node rightBro = theTree->nodeDisk.read(this->rightBrother);
+            if(rightBro.father != this->father) return false;
+            if(rightBro.childSize > MIN_CHILD){ // borrow one node from left brother,that means child's key move upward and father key move down
+                // update father node
+                Node fatherNode = theTree->nodeDisk.read(this->father);
+                int keyPos = upper_bound(fatherNode.nodeKey,fatherNode.childSize-1,this->nodeKey[this->childSize-2]);
+                Key targetKey = fatherNode.nodeKey[keyPos];
+                fatherNode.nodeKey[keyPos] = rightBro.nodeKey[1];
+                theTree->nodeDisk.write(fatherNode,fatherNode.position);
+                // update *this
+                this->nodeKey[this->childSize-1] = rightBro.nodeKey[0];
+                this->childPosition[this->childSize] = rightBro.childPosition[0];
+                ++this->childSize;
+                theTree->nodeDisk.write(*this,this->position);
+                // update left brother
+                for(int i = 0;i < rightBro.childSize - 2;++i){
+                    rightBro.nodeKey[i] = rightBro.nodeKey[i+1];
+                }
+                for(int i = 0;i < rightBro.childSize - 1;++i){
+                    rightBro.childPosition[i] = rightBro.childPosition[i+1];
+                }
+                --rightBro.childSize;
+                theTree->nodeDisk.write(rightBro,rightBro.position);
+                // update child's father
+                if(this->childIsLeaf){
+                    leafNode childNode = theTree->leafDisk.read(this->childPosition[this->childSize-1]);
+                    childNode.father = this->position;
+                    theTree->leafDisk.write(childNode,childNode.position);
+                }else{
+                    Node childNode = theTree->nodeDisk.read(this->childPosition[this->childSize-1]);
+                    childNode.father = this->position;
+                    theTree->nodeDisk.write(childNode,childNode.position);
+                }
+            }else{ // merge two nodes
+                // update father node in the end
+                Node fatherNode = theTree->nodeDisk.read(this->father);
+                int keyPos = upper_bound(fatherNode.nodeKey,fatherNode.childSize-1,this->nodeKey[this->childSize-2]);
+                Key downKey = fatherNode.nodeKey[keyPos];
+                // merge two into one
+                this->nodeKey[this->childSize-1] = downKey;
+                for(int i = 0;i < rightBro.childSize-1;++i){
+                    this->nodeKey[i+this->childSize] = rightBro.nodeKey[i];
+                }
+                for(int i = 0;i < rightBro.childSize;++i){
+                    this->childPosition[i+this->childSize] = rightBro.childPosition[i];
+                    if(this->childIsLeaf){
+                        leafNode tmp = theTree->leafDisk.read(rightBro.childPosition[i]);
+                        tmp.father = this->position;
+                        theTree->leafDisk.write(tmp,tmp.position);
+                    }else{
+                        Node tmp = theTree->nodeDisk.read(rightBro.childPosition[i]);
+                        tmp.father = this->position;
+                        theTree->nodeDisk.write(tmp,tmp.position);
+                    }
+                }
+                this->childSize += rightBro.childSize;
+                // write back && modify the linkList
+                this->rightBrother = rightBro.rightBrother;
+                if(~rightBro.rightBrother){
+                    Node tmprr = theTree->nodeDisk.read(rightBro.rightBrother);
+                    tmprr.leftBrother = this->position;
+                    theTree->nodeDisk.write(tmprr,tmprr.position);
+                }
+                theTree->nodeDisk.write(*this,this->position);
+                theTree->nodeDisk.erase(rightBro.position);
+                // delete the element in father node
+                fatherNode.deleteElement(keyPos,theTree);
+            }
+            return true;
         }
         void deleteElement(int keyPos,BPlusTree * theTree){
             for(int i = keyPos;i < childSize - 2;++i){
@@ -285,7 +472,7 @@ private:
             }
             if(this->askLeft(theTree)) return;
             if(this->askRight(theTree)) return;
-
+            theTree->nodeDisk.write(*this,this->position);
         }
 #ifdef debug
 
