@@ -117,10 +117,46 @@ private:
                 tmpNode.findElement(_key,_data,theTree,false,true,leafPos,keyPos);
             }
         }
-        bool borrowLeft(){
-
+        bool askLeft(BPlusTree * theTree){
+            if(this->leftBrother == -1) return false;
+            leafNode leftBro = theTree->leafDisk.read(this->leftBrother);
+            if(leftBro.father != this->father) return false;
+            if(leftBro.dataSize > MIN_RECORD){ // borrow one record from left brother
+                //deal with this
+                for(int i = this->dataSize;i > 0;--i){
+                    this->dataKey[i] = this->dataKey[i-1];
+                    this->dataSet[i] = this->dataSet[i-1];
+                }
+                this->dataKey[0] = leftBro.dataKey[leftBro.dataSize-1];
+                this->dataSet[0] = leftBro.dataSet[leftBro.dataSize-1];
+                ++this->dataSize;--leftBro.dataSize;
+                //deal with father
+                Node fatherNode = theTree->nodeDisk.read(this->father);
+                int pos = upper_bound(fatherNode.nodeKey,fatherNode.childSize-1,this->dataKey[0]);
+                fatherNode.nodeKey[pos] = this->dataKey[0];
+                //write back
+                theTree->leafDisk.write(*this,this->position);
+                theTree->leafDisk.write(leftBro,leftBro.position);
+                theTree->nodeDisk.write(fatherNode,fatherNode.position);
+            }else{ // merge left brother and this into one leafNode
+                // merge two into one
+                Key tmpKey = leftBro.dataKey[leftBro.dataSize-1];
+                for(int i = 0;i < this->dataSize;++i){
+                    leftBro.dataKey[leftBro.dataSize+i] = this->dataKey[i];
+                    leftBro.dataSet[leftBro.dataSize+i] = this->dataSet[i];
+                }
+                leftBro.dataSize += this->dataSize;
+                // write back
+                theTree->leafDisk.write(leftBro,leftBro.position);
+                theTree->leafDisk.erase(this->position);
+                // todo : deleteElement int fatherNode including writing back into document
+                Node fatherNode = theTree->nodeDisk.read(this->father);
+                int pos = upper_bound(fatherNode.nodeKey,fatherNode.childSize-1,tmpKey);
+                fatherNode.deleteElement(pos,theTree);
+            }
+            return true;
         }
-        bool borrowRight(){
+        bool askRight(BPlusTree * theTree){
 
         }
         void deleteElement(int keyPos,BPlusTree * theTree){
@@ -133,8 +169,8 @@ private:
                 theTree->leafDisk.write(*this,this->position);
                 return;
             }
-            if(this->borrowLeft()) return;
-            if(this->borrowRight()) return;
+            if(this->askLeft(theTree)) return;
+            if(this->askRight(theTree)) return;
             theTree->leafDisk.write(*this,this->position);
         }
 
@@ -229,7 +265,28 @@ private:
             Node fatherNode = (theTree->nodeDisk.read(tmpNode.father));
             fatherNode.addElement(this->nodeKey[MIN_CHILD-1],tmpNode.position,theTree);
         }
+        bool askLeft(BPlusTree * theTree){
 
+        }
+        bool askRight(BPlusTree * theTree){
+
+        }
+        void deleteElement(int keyPos,BPlusTree * theTree){
+            for(int i = keyPos;i < childSize - 2;++i){
+                this->nodeKey[i] = this->nodeKey[i+1];
+            }
+            for(int i = keyPos + 1;i < childSize - 1;++i){
+                this->childPosition[i] = this->childPosition[i+1];
+            }
+            --childSize;
+            if(childSize > MIN_CHILD-1){
+                theTree->nodeDisk.write(*this,this->position);
+                return;
+            }
+            if(this->askLeft(theTree)) return;
+            if(this->askRight(theTree)) return;
+
+        }
 #ifdef debug
 
         void show() const {
