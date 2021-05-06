@@ -98,6 +98,45 @@ private:
                 tmpNode.findElement(_key,vec_ans,theTree,false,true);
             }
         }
+        void eraseAssistant(const Key & _key,const Data & _data,BPlusTree * theTree,bool left,bool right,int & leafPos,int & keyPos){
+            int pos1 = lower_bound(this->dataKey,this->dataSize,_key);
+            int pos2 = upper_bound(this->dataKey,this->dataSize,_key);
+            for(int i = pos1;i <= pos2 && i < this->dataSize;++i){
+                if(this->dataKey[i] == _key && this->dataSet[i] == _data){
+                    leafPos = this->position;
+                    keyPos = i;
+                    return;
+                }
+            }
+            if(this->dataKey[0] == _key && this->leftBrother != -1 && left && leafPos == -1){
+                leafNode tmpNode = theTree->leafDisk.read(this->leftBrother);
+                tmpNode.findElement(_key,_data,theTree,true,false,leafPos,keyPos);
+            }
+            if(this->dataKey[dataSize-1] == _key && this->rightBrother != -1 && right && leafPos == -1){
+                leafNode tmpNode = theTree->leafDisk.read(this->rightBrother);
+                tmpNode.findElement(_key,_data,theTree,false,true,leafPos,keyPos);
+            }
+        }
+        bool borrowLeft(){
+
+        }
+        bool borrowRight(){
+
+        }
+        void deleteElement(int keyPos,BPlusTree * theTree){
+            for(int i = keyPos;i < dataSize - 1;++i){
+                dataKey[i] = dataKey[i+1];
+                dataSet[i] = dataSet[i+1];
+            }
+            --dataSize;
+            if(dataSize > MIN_RECORD-1){
+                theTree->leafDisk.write(*this,this->position);
+                return;
+            }
+            if(this->borrowLeft()) return;
+            if(this->borrowRight()) return;
+            theTree->leafDisk.write(*this,this->position);
+        }
 
 #ifdef debug
 
@@ -279,7 +318,16 @@ public:
     }
     // delete the specific data with the key
     bool erase(const Key & _key,const Data & _data){
-
+        if(treeInfo.root == -1) return false;
+        int leafPos = -1,keyPos = -1;
+        int leafPosition = findLeaf(_key);
+        leafNode tmpLeafNode = leafDisk.read(leafPosition);
+        tmpLeafNode.eraseAssistant(_key,_data,this,true,true,leafPos,keyPos);
+        if(leafPos == -1) return false;
+        leafNode targetLeafNode = leafDisk.read(leafPos);
+        targetLeafNode.deleteElement(keyPos,this);
+        --treeInfo.size;
+        return true;
     }
     // find all data associated with the key
     void find(const Key & _key,vector<Data> & vec_ans){
