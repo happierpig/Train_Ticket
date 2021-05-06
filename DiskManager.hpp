@@ -121,5 +121,17 @@ public:
         file.seekp(0,ios::beg);
         file.write(reinterpret_cast<const char *>(&info),sizeof(info));
     }
+    void clear(){
+        file.close();
+        file.open(fileName,ios::out);
+        file.close();
+        file.open(fileName,ios::in | ios::out | ios::binary);
+        nowPtr = -1;nextPtr = -1;
+        basicInfo temp;
+        file.seekp(0,ios::beg);
+        file.write(reinterpret_cast<const char *>(&temp),sizeof(temp));
+        file.seekp(sizeof(temp),ios::beg);
+        file.write(reinterpret_cast<const char *>(&nowPtr),sizeof(nowPtr));
+    }
 };
 #endif //TRAIN_TICKET_DISKMANAGER_HPP

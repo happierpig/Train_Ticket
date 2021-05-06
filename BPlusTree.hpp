@@ -283,17 +283,17 @@ public:
     }
     // find all data associated with the key
     void find(const Key & _key,vector<Data> & vec_ans){
+        if(treeInfo.root == -1) return;
         int leafPosition = findLeaf(_key);
         leafNode tmpLeafNode = leafDisk.read(leafPosition);
         tmpLeafNode.findElement(_key,vec_ans,this,true,true);
     }
-    // find all data which owns key ranged from key1 to key2
-    void find(const Key & _key1,const Key & _key2,vector<Data> & vec_ans){
-
+    // delete all data and reset the document
+    void clear(){
+        leafDisk.clear();
+        nodeDisk.clear();
+        treeInfo.root = -1;treeInfo.head = -1;treeInfo.size = 0;
     }
-
-
-
 #ifdef debug
 private:
     void show(int offset, bool isLeaf)  {

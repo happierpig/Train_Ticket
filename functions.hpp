@@ -20,6 +20,7 @@ namespace myFunctions{
         }
         return l;
     }
+
     template<class T>
     int lower_bound(const T * const head,int size,const T & _target){
         if(!size) return 0;
