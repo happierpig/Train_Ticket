@@ -604,6 +604,18 @@ public:
         treeInfo.head = -1;
         treeInfo.size = 0;
     }
+    void findAll(vector<Data> & vec_ans){
+        if(treeInfo.root == -1 || treeInfo.head == -1) return;
+        int ptr = treeInfo.head;
+        while(true){
+            leafNode tmpNode = this->leafDisk.read(ptr);
+            for(int i = 0;i < tmpNode.dataSize;++i){
+                vec_ans.push_back(tmpNode.dataSet[i]);
+            }
+            if(tmpNode.rightBrother == -1) break;
+            ptr = tmpNode.rightBrother;
+        }
+    }
 #ifdef debug
 private:
     void show(int offset, bool isLeaf)  {
