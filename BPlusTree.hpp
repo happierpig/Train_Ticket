@@ -10,7 +10,7 @@
 #include <cstring>
 #include <vector>
 
-#define debug // using Xiatian's debug method
+//#define debug // using Xiatian's debug method
 
 using std::string;
 using std::vector;

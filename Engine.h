@@ -6,7 +6,7 @@
 #include "all_header.h"
 using namespace std ;
 
-enum cost_type{ money , time };
+enum cost_type{ money , mytime };
 
 class ride
 {
@@ -14,7 +14,7 @@ public:
     string from_location , to_location ;
     string trainID ;
     int location_1 = 0  , location_2 = 0 ;
-    cost_type real_type = time ;
+    cost_type real_type = mytime ;
     int money_cost = 0 , time_cost = 0 ;
 
 public:
@@ -29,10 +29,10 @@ class my_system
 {
 private:
     //map<user,int> log_in_user ;
-    map<string,user> log_in_user ; // 换成 unordered_set<string> 判存
+    map<string,user> log_in_user ; // todo 考虑 unordered_map<string,int> log_in_user 前存用户ID 后存 priority
     stringstream command_stream ;
     BPlusTree<IndexKey,user> user_tree ;
-    BPlusTree<IndexKey,train> train_tree ;
+    BPlusTree<IndexKey,train,200,8> train_tree ;
     BPlusTree<IndexKey,ticket_deal> user_deal_tree ;
     BPlusTree<IndexKey,IndexKey> location_train_tree ;
     BPlusTree<IndexKey,ticket_deal> waiting_tree ;
@@ -99,6 +99,14 @@ public:
     void clean() ;
 
     void EXIT() ;
+
+    // todo debug_show
+
+    void show_train() ;
+
+    void show_user() ;
+
+    void show_location() ;
 
 };
 

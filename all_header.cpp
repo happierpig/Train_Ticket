@@ -38,7 +38,7 @@ date::date(string &date_str, string &time_str) : date(date_str)
 
 void date::add_day()
 {
-    if ( ( month == 6 && day == 30 ) || ( month == 7 && day == 31 ) ){ month++ ; day = 1 ; return ; }
+    if ( ( month == 6 && day == 30 ) || ( month == 7 && day == 31 ) || ( month == 8 && day == 31 ) ){ month++ ; day = 1 ; return ; }
     day++ ;
 }
 
@@ -77,6 +77,7 @@ void date::del_day()
     if ( day == 1 ){
         if ( month == 7 ){ month = 6 ; day = 30 ; return ; }
         if ( month == 8 ){ month = 7 ; day = 31 ; return ; }
+        if ( month == 9 ){ month = 8 ; day = 31 ; return ; }
     }
     day-- ;
 }
@@ -247,6 +248,11 @@ bool user::operator==(const user &other_user) const
 bool user::operator>( const user &other_user ) const
 {
     return ( strcmp(user_name,other_user.user_name) > 0 );
+}
+
+ostream &operator<<(ostream &os, const user &temp_user){
+    os << temp_user.user_name ;
+    return os ;
 }
 
 
@@ -449,6 +455,11 @@ void train::ticket_increase(date purchase_day, int location_1, int location_2, i
     }
 }
 
+ostream &operator<<(ostream &os, const train &temp_train) {
+    os << temp_train.trainID ;
+    return os ;
+}
+
 IndexKey::IndexKey(string &input_str)
 {
     stringstream temp_stream ;
@@ -469,6 +480,11 @@ bool IndexKey::operator>(const IndexKey &other_key) const { return strcmp(real_k
 bool IndexKey::operator>=(const IndexKey &other_key) const { return (*this) > other_key || (*this) == other_key ; }
 
 bool IndexKey::operator<=(const IndexKey &other_key) const { return (*this) < other_key || (*this) == other_key ; }
+
+ostream &operator<<(ostream &os , const IndexKey &temp_key) {
+    os << temp_key.real_key  ;
+    return os ;
+}
 
 ticket_deal::ticket_deal(para &input_para)
 {
@@ -534,6 +550,11 @@ ticket_deal &ticket_deal::operator=(const ticket_deal &other)
     arrival_time = other.arrival_time ;
     deal_status = other.deal_status ;
     return *this ;
+}
+
+ostream &operator<<( ostream &os , const ticket_deal &temp_deal ) {
+    os << temp_deal.trainID << " " << temp_deal.user_name ;
+    return os ;
 }
 
 

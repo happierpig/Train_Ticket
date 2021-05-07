@@ -8,7 +8,7 @@ bool ride::operator<(const ride &other) const
 
 
 my_system::my_system() : user_tree(string(USER_FILE)) , train_tree(string(TRAIN_FILE)) , user_deal_tree(string(DEAL_FILE)) ,
-                   location_train_tree(string(LOCATION_FILE)) , waiting_tree(string(WAITING_LIST_FILE)) // 委托构造所有的树
+                         location_train_tree(string(LOCATION_FILE)) , waiting_tree(string(WAITING_LIST_FILE)) // 委托构造所有的树
 {
 
 }
@@ -16,6 +16,7 @@ my_system::my_system() : user_tree(string(USER_FILE)) , train_tree(string(TRAIN_
 bool my_system::check_priority(user &c_user, user &u_user)
 {
     if ( c_user.privilege > u_user.privilege || c_user == u_user ) return true ;
+    cerr << "low priority" << endl ;
     return false ;
 }
 
@@ -28,13 +29,28 @@ void my_system::fail() { cout << -1 << endl ; }
 void my_system::user_update(user &u_user)
 {
     IndexKey user_key(u_user) ;
+    if( !user_tree.erase(user_key,u_user ) )
+        cerr << "no such user" << endl  ;
     user_tree.insert(user_key,u_user) ;
+    // todo debug
+    vector<user> check_vec ;
+    user_tree.find(user_key,check_vec) ;
+    if ( check_vec.empty() ){
+        cerr << "user insert fail" << endl ;
+    }
 }
 
-void my_system::train_update(train &t_train)
+void my_system::train_update(train &t_train) // todo 出问题 ()
 {
     IndexKey train_key(t_train) ;
+    if( !train_tree.erase(train_key,t_train) )
+        cerr << "no such train" << endl ;
     train_tree.insert(train_key,t_train) ;
+    // todo debug
+    vector<train> check_vec ;
+    train_tree.find(train_key,check_vec) ;
+    if ( check_vec.empty() )
+        cerr << "train insert fail" << endl ;
 }
 
 void my_system::deal_update(ticket_deal &t_deal)
@@ -77,6 +93,7 @@ void my_system::process_command(string &all_command)
     else if ( real_command == "buy_ticket" ) { buy_ticket() ; }
     else if ( real_command == "query_order" ) { query_order() ; }
     else if ( real_command == "refund_ticket" ) { refund_ticket() ; }
+    else if ( real_command == "exit" ) { EXIT() ; }
     else if ( real_command == "clean" ) { clean() ; }
 }
 
@@ -86,6 +103,7 @@ bool my_system::no_repeated_user(user &u_user)
     vector<user> ans_vec ;
     user_tree.find(user_key,ans_vec) ;
     if ( ans_vec.empty() ) return true ;
+    cerr << "repeated user" << endl ;
     return false ;
 }
 
@@ -93,7 +111,7 @@ void my_system::add_user()
 {
     para temp_para(command_stream) ;
     user temp_user(temp_para) ;
-    if ( !user_tree.empty() || !check_login(temp_para.c) || !check_priority(temp_user,log_in_user[temp_para.c]) || !no_repeated_user(temp_user) ){ fail() ; return ; }
+    if ( !user_tree.empty() && (!check_login(temp_para.c) || !check_priority(log_in_user[temp_para.c],temp_user) || !no_repeated_user(temp_user)) ){ fail() ; return ; }
     if ( user_tree.empty() ) temp_user.privilege = 10 ;
     user_update(temp_user) ;
     success() ;
@@ -126,7 +144,7 @@ void my_system::query_profile()
     IndexKey user_key(temp_para.u) ;
     vector<user> ans_vec ;
     user_tree.find(user_key,ans_vec) ;
-    if ( ans_vec.empty() || check_priority(log_in_user[temp_para.u],ans_vec[0]) ) { fail(); return ; }
+    if ( ans_vec.empty() || !check_priority(log_in_user[temp_para.c],ans_vec[0]) ) { fail(); return ; }
     ans_vec[0].print_user() ;
 }
 
@@ -137,17 +155,17 @@ void my_system::modify_profile()
     IndexKey user_key(temp_para.u) ;
     vector<user> ans_vec ;
     user_tree.find(user_key,ans_vec) ;
-    if ( ans_vec.empty() || check_priority(log_in_user[temp_para.u],ans_vec[0]) ) { fail(); return ; }
+    if ( ans_vec.empty() || !check_priority(log_in_user[temp_para.c],ans_vec[0]) ) { fail(); return ; }
     stringstream change_stream ;
     if ( !temp_para.p.empty() )
-        { change_stream << temp_para.p ; change_stream >> ans_vec[0].password ; change_stream.str("") ; change_stream.clear() ; }
+    { change_stream << temp_para.p ; change_stream >> ans_vec[0].password ; change_stream.str("") ; change_stream.clear() ; }
     if ( !temp_para.n.empty() )
-        { change_stream << temp_para.n ; change_stream >> ans_vec[0].chinese_name ; change_stream.str("") ; change_stream.clear() ; }
+    { change_stream << temp_para.n ; change_stream >> ans_vec[0].chinese_name ; change_stream.str("") ; change_stream.clear() ; }
     if ( !temp_para.m.empty() )
-        { change_stream << temp_para.m ; change_stream >> ans_vec[0].mailAddr ; change_stream.str("") ; change_stream.clear() ; }
+    { change_stream << temp_para.m ; change_stream >> ans_vec[0].mailAddr ; change_stream.str("") ; change_stream.clear() ; }
     if ( !temp_para.g.empty() )
-        { change_stream << temp_para.g ; change_stream >> ans_vec[0].privilege ; change_stream.str("") ; change_stream.clear() ; }
-    if ( ans_vec[0].privilege >= log_in_user[temp_para.u].privilege ) { fail(); return ; }
+    { change_stream << temp_para.g ; change_stream >> ans_vec[0].privilege ; change_stream.str("") ; change_stream.clear() ; }
+    if ( ans_vec[0].privilege >= log_in_user[temp_para.c].privilege ) { fail(); return ; }
     user_update(ans_vec[0]) ;
     ans_vec[0].print_user() ;
 }
@@ -160,7 +178,13 @@ void my_system::add_train()
     train_tree.find(train_key,ans_vec) ;
     if ( !ans_vec.empty() ) { fail() ; return ; }
     train temp_train(temp_para) ;
-    train_update(temp_train) ;
+//    train_update(temp_train) ;
+    train_tree.insert(train_key,temp_train) ;
+    // todo debug
+    train_tree.find(train_key,ans_vec) ;
+    if ( ans_vec.empty() ){
+        cerr << "add_train insert fail" << endl ;
+    }
     success() ;
 }
 
@@ -177,7 +201,18 @@ void my_system::release_train()
         IndexKey location_key(temp_location) ;
         location_train_tree.insert(location_key,train_key) ;
     }
+//    train_update(ans_vec[0]) ;
+    if ( !train_tree.erase(train_key,ans_vec[0]) ){
+        cerr << "release erase fail" << endl ;
+    } ;
+    train_tree.insert(train_key,ans_vec[0]) ;
     success() ;
+    // todo debug
+    ans_vec.clear() ;
+    train_tree.find(train_key,ans_vec) ;
+    if ( ans_vec.empty() ){
+        cerr << "release fail" << endl ;
+    }
 }
 
 void my_system::query_train()
@@ -197,7 +232,7 @@ void my_system::delete_train()
     vector<train> ans_vec ;
     train_tree.find(train_key,ans_vec) ;
     if ( ans_vec.empty() || ans_vec[0].is_released() ) { fail() ; return ; }
-    train_tree.erase(train_key) ;
+    train_tree.erase(train_key,ans_vec[0]) ; // todo 没有一次删完这种操作？
 }
 
 void my_system::make_ride(vector<train> &from_train, vector<train> &to_train, string &from_location, string &to_location , vector<pair<ride,train>> &ans_vec )
@@ -234,12 +269,14 @@ void my_system::query_ticket()
     location_train_tree.find(to_location_key,to_train_key) ;
     for ( int i = 0 ; i < from_train_key.size() ; i++ ){
         train_tree.find(from_train_key[i],temp_vec) ;
-        if ( temp_vec[0].in_sale(purchase_day,temp_vec[0].get_location(temp_para.s)) ) from_train.push_back(temp_vec[i]) ; // 不在发售日期不放入
+        if ( temp_vec[0].in_sale(purchase_day,temp_vec[0].get_location(temp_para.s)) )
+            from_train.push_back(temp_vec[0]) ; // 不在发售日期不放入
         temp_vec.clear() ;
     }
     for ( int i = 0 ; i < to_train_key.size() ; i++ ){
         train_tree.find(to_train_key[i],temp_vec) ;
-        if ( temp_vec[0].in_sale(purchase_day,temp_vec[0].get_location(temp_para.t)) ) to_train.push_back(temp_vec[0]) ;
+        if ( temp_vec[0].in_sale(purchase_day,temp_vec[0].get_location(temp_para.t)) )
+            to_train.push_back(temp_vec[0]) ;
         temp_vec.clear() ;
     }
     vector<pair<ride,train>> available_ride ; // todo 判无车
@@ -307,7 +344,7 @@ void my_system::query_transfer()
                 temp_ride_2.location_2 = train_2.get_location(temp_para.t) ;
                 temp_ride_2.money_cost = train_2.get_price(temp_ride_2.location_1,temp_ride_2.location_2) ;
                 temp_ride_2.time_cost = train_2.get_time(temp_ride_2.location_1,temp_ride_2.location_2) ;
-                if ( temp_ride_1.real_type == time ){ // -p time
+                if ( temp_ride_1.real_type == mytime ){ // -p time
                     int temp_ans = temp_date - purchase_day + temp_ride_2.time_cost ; // 总共消耗时间
                     if ( temp_ans < ans_cost ){
                         ans_cost = temp_ans ;
@@ -347,10 +384,11 @@ void my_system::buy_ticket()
     if ( !check_login(temp_para.u) ) { fail() ; return ; }
     IndexKey train_key(temp_para.i) , user_key(temp_para.u) ;
     vector<train> ans_vec  ; vector<user> user_vec ;
-    train_tree.find(train_key,ans_vec) ; user_tree.find(user_key,user_vec) ;
+    train_tree.find(train_key,ans_vec) ; // todo 这里ans_vec 找不到
+    user_tree.find(user_key,user_vec) ;
     date purchase_day(temp_para.d) ;
-    if ( ans_vec.empty() || ans_vec[0].get_location(temp_para.f) == -1 || ans_vec[0].get_location(temp_para.t) == -1 || !ans_vec[0].in_sale(purchase_day,ans_vec[0].get_location(temp_para.f)) )
-        { fail() ; return ; }
+    if ( ans_vec.empty() || !ans_vec[0].is_released() || ans_vec[0].get_location(temp_para.f) == -1 || ans_vec[0].get_location(temp_para.t) == -1 || !ans_vec[0].in_sale(purchase_day,ans_vec[0].get_location(temp_para.f)) )
+    { fail() ; return ; } // todo 第二次就出事，第三次就消失
     ticket_deal temp_deal(temp_para) ;
     int location_1 = ans_vec[0].get_location(temp_para.f) , location_2 = ans_vec[0].get_location(temp_para.t) ;
     int available_ticket_num = ans_vec[0].get_max_available_ticket(purchase_day,location_1,location_2) ;
@@ -367,7 +405,7 @@ void my_system::buy_ticket()
         deal_update(temp_deal) ;
         train_update(ans_vec[0]) ;
         user_update(user_vec[0]) ;
-        cout << temp_deal.price * available_ticket_num << endl ;
+        cout << temp_deal.price * temp_deal.ticket_num << endl ;
     }else{
         temp_deal.deal_status = pending ;
         user_vec[0].change_deal() ;

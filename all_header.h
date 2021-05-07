@@ -132,6 +132,8 @@ public:
 
     void change_deal() ;
 
+    friend ostream &operator<<( ostream &os , const user &temp_user ) ;
+
 };
 
 class train
@@ -193,6 +195,8 @@ public:
 
     int get_max_available_ticket( date purchase_day , int location_1 , int location_2 ) ;
 
+    friend ostream &operator<<( ostream &os , const train &temp_train ) ;
+
 };
 
 class IndexKey
@@ -218,6 +222,8 @@ public:
     bool operator>=( const IndexKey &other_key ) const ;
 
     bool operator<=( const IndexKey &other_key ) const ;
+
+    friend ostream &operator<<( ostream &os , const IndexKey &temp_key ) ;
 
 };
 
@@ -264,6 +270,8 @@ public:
     void modify_price( int deal_price ) ;
 
     void print_deal() ;
+
+    friend ostream &operator<<( ostream &os , const ticket_deal &temp_deal ) ;
 
 };
 
