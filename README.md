@@ -1,6 +1,16 @@
 # 火车票管理系统
 
+> CS147 group assignment, ACM Honors Class, SJTU
+
 火车票管理系统为组队作业，共15组，每组由两人组成。
+
+| **Team name** : 龙龙子\_official_新搬运 |
+| :-------------------------------------: |
+
+|                   Teammate                    |        Mission        |
+| :-------------------------------------------: | :-------------------: |
+| [andy-yang-1](https://github.com/andy-yang-1) |    Main procedure     |
+|   [happypig](https://github.com/happierpig)   | DataStructure: B+Tree |
 
 ## 概况
 
@@ -384,7 +394,7 @@
 - [SF] `buy_ticket`
   
   - 参数列表
-  `-u -i -d -n -f -t (-q false)`
+    `-u -i -d -n -f -t (-q false)`
     
   - 说明
     
@@ -608,5 +618,4 @@
 - Q: 如果购票数量大于列车最大座位数还可以候补吗？
 
     A: 不可以。
-
 

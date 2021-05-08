@@ -6,4 +6,5 @@ CMakeFiles/Train_Ticket.dir/main.cpp.o: ../DiskManager.hpp
 CMakeFiles/Train_Ticket.dir/main.cpp.o: ../Myexception.hpp
 CMakeFiles/Train_Ticket.dir/main.cpp.o: ../functions.hpp
 CMakeFiles/Train_Ticket.dir/main.cpp.o: ../main.cpp
+CMakeFiles/Train_Ticket.dir/main.cpp.o: ../vector.hpp
 

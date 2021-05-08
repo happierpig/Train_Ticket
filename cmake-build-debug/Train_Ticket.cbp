@@ -95,6 +95,9 @@
 		<Unit filename="/Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/main.cpp">
 			<Option target="Train_Ticket"/>
 		</Unit>
+		<Unit filename="/Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/vector.hpp">
+			<Option target="Train_Ticket"/>
+		</Unit>
 		<Unit filename="/Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>

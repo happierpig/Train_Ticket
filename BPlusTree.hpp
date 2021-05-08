@@ -9,10 +9,11 @@
 #include "functions.hpp"
 #include <cstring>
 #include <vector>
-
+//#include "vector.hpp"
 //#define debug // using Xiatian's debug method
 
 using std::string;
+//using sjtu::vector;
 using std::vector;
 using myFunctions::upper_bound;
 using myFunctions::lower_bound;

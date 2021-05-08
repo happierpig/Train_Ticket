@@ -3,4 +3,4 @@ project(Train_Ticket)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(Train_Ticket main.cpp BPlusTree.hpp DiskManager.hpp Myexception.hpp functions.hpp)
+add_executable(Train_Ticket main.cpp BPlusTree.hpp DiskManager.hpp Myexception.hpp functions.hpp vector.hpp)
