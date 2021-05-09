@@ -111,6 +111,11 @@ public:
         return temp;
     }
     int tellp(){
+        if(file.fail()){
+            file.clear();
+            file.close();
+            file.open(fileName,ios::out | ios::in | ios::binary);
+        }
         if(nowPtr >= 0) return nowPtr;
         else{
             file.seekp(0,ios::end);
