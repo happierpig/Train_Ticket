@@ -86,6 +86,9 @@
 		<Unit filename="/Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/DataStructure/DiskManager.hpp">
 			<Option target="Train_Ticket"/>
 		</Unit>
+		<Unit filename="/Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/DataStructure/HashMap.hpp">
+			<Option target="Train_Ticket"/>
+		</Unit>
 		<Unit filename="/Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/DataStructure/Myexception.hpp">
 			<Option target="Train_Ticket"/>
 		</Unit>
