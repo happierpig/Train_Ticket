@@ -1,3 +1,3 @@
 /Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/cmake-build-debug/CMakeFiles/rebuild_cache.dir
 /Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/cmake-build-debug/CMakeFiles/edit_cache.dir
-/Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/cmake-build-debug/CMakeFiles/Train_Ticket.dir
+/Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/cmake-build-debug/CMakeFiles/code.dir
