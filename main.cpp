@@ -1,27 +1,31 @@
 #include <iostream>
-#include "DataStructure/HashMap.hpp"
-using std::cin;
+#include "DataStructure/BPlusTree.hpp"
+#include <vector>
+using std::vector;
 int main(){
-    HashMap<int,int> test(131);
-    while(true){
-        int opClass;
-        cin >> opClass;
-        if(opClass == -1) break;
-        if(opClass == 1){
-            int x,y;cin >> x >> y;
-            if(test.exist(x)) std::cerr << "already exists" << std::endl;
-            else{
-                test.insert(x,y);
-            }
+    BPlusTree<int,int,4,6> myTree("test");
+    while (true){
+        int x;
+        std::cin >> x;
+        if(x == -1) break;
+        if(x == 1) {
+            int value;std::cin >> value;
+            myTree.insert(value, value);
+            myTree.show();
         }
-        if(opClass == 2){
-            int x;cin >> x;
-            test.erase(x);
+        if(x == 2){
+            int target;
+            std::cin >> target;
+            vector<int> vec_ans;
+            myTree.find(target,vec_ans);
+            for(int i = 0;i < vec_ans.size();++i) std::cout << vec_ans[i] << ' ';
+            std::cout << std::endl;
         }
-        if(opClass == 3){
-            int x;cin >>x;
-            if(!test.exist(x)) std::cerr << "doesn't exist" << std::endl;
-            else std::cout << test.find(x) << std::endl;
+        if(x == 3){
+            int target;
+            std::cin >> target;
+            myTree.erase(target,target);
+            myTree.show();
         }
     }
     return 0;

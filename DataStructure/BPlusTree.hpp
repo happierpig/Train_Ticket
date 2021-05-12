@@ -587,7 +587,7 @@ private:
 public:
     // interfaces for my B+Tree
     BPlusTree() = delete;
-    explicit BPlusTree(const string & _name):leafDisk(_name + "_leaf.dat"),nodeDisk(_name + "_node.dat"){
+    explicit BPlusTree(const string & _name):leafDisk(_name + "_leaf.dat",131),nodeDisk(_name + "_node.dat",131){
         treeInfo = nodeDisk.tellInfo();
     }
     ~BPlusTree(){
@@ -654,7 +654,7 @@ public:
         }
     }
 #ifdef debug
-private:
+    private:
     void show(int offset, bool isLeaf)  {
         cout << "[pos] " << offset << endl;
         if (isLeaf) {

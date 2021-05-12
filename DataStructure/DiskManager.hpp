@@ -4,9 +4,10 @@
 
 #ifndef TRAIN_TICKET_DISKMANAGER_HPP
 #define TRAIN_TICKET_DISKMANAGER_HPP
-
+//#define debug
 #include <cstring>
 #include <fstream>
+#include "HashMap.hpp"
 
 using std::string;
 using std::fstream;
@@ -18,6 +19,110 @@ private:
     const string fileName;
     int nowPtr,nextPtr; // nowPtr is the head of the fileLinkList
     fstream file;
+private:
+    class List{
+    public:
+        struct Node{
+            Node * before;
+            Node * after;
+            T * data;
+            int position;
+            Node() = delete;
+            Node(Node * _bef,Node * _aft,const T & _data,int _pos):before(_bef),after(_aft),data(new T(_data)),position(_pos){}
+            Node(Node * _bef,Node * _aft):before(_bef),after(_aft),data(nullptr),position(-1){}
+            ~Node(){
+                delete data;
+            }
+        };
+        int capacity;
+        Node * head;Node * tail;
+        int dataSize;
+        DiskManager * theDisk;
+    private:
+        void write_back(int _pos,T * _data){
+            theDisk->file.seekp(_pos,ios::beg);
+            theDisk->file.write(reinterpret_cast<const char *>(_data),sizeof(*_data));
+        }
+        void pop_back(){
+            Node * tmp = tail->before;
+            this->write_back(tmp->position,tmp->data);
+            tmp->before->after = tmp->after;
+            tmp->after->before = tmp->before;
+            theDisk->assistantMap.erase(tmp->position);
+            delete tmp;
+        }
+        Node * push_front(int _pos,const T & _data){
+            Node * tmp = new Node(head,head->after,_data,_pos);
+            tmp->after->before = tmp;
+            head->after = tmp;
+            ++dataSize;
+            if(dataSize == capacity) pop_back();
+            return tmp;
+        }
+    public:
+        List() = delete;
+        explicit List(int _capacity,DiskManager * _ptr):theDisk(_ptr),capacity(_capacity),dataSize(0),head(new Node(nullptr, nullptr)),tail(new Node(nullptr, nullptr)){
+            head->after = tail;
+            tail->before = head;
+        }
+        ~List(){
+            Node * tmp = head;
+            theDisk->file.open(theDisk->fileName,ios::in | ios::out | ios::binary);
+            while(tmp != nullptr){
+                if(tmp->position != -1){
+                    this->write_back(tmp->position,tmp->data);
+                }
+                Node * tmpp = tmp;
+                tmp = tmp->after;
+                delete tmpp;
+            }
+        }
+        Node * insert(int _pos,const T & _data){
+            return this->push_front(_pos,_data);
+        }
+        void update(Node * _target){
+            if(head->after == _target) return;
+            _target->before->after = _target->after;
+            _target->after->before = _target->before;
+            _target->before = head;
+            _target->after = head->after;
+            head->after->before = _target;
+            head->after = _target;
+        }
+        void erase(Node * _target){
+            --dataSize;
+            _target->before->after = _target->after;
+            _target->after->before = _target->before;
+            delete _target;
+        }
+        void clear(){
+            Node * tmp = head;
+            while(tmp != nullptr){
+                Node * tmpp = tmp;
+                tmp = tmp->after;
+                delete tmpp;
+            }
+            dataSize = 0;
+            head = new Node(nullptr, nullptr);
+            tail = new Node(nullptr, nullptr);
+            head->after = tail;
+            tail->before = head;
+        }
+
+#ifdef debug
+        void show(){
+            std::cout << theDisk->fileName <<" Cache List show : ------" << std::endl;
+            Node * tmp = head;
+            while(tmp != nullptr){
+                if(tmp->position > 0) tmp->data->show();
+                tmp = tmp->after;
+            }
+            std::cout << "---- over -----" << std::endl;
+        }
+#endif
+    };
+    List cache;
+    HashMap<int,typename List::Node *> assistantMap;
 private:
     void setSparePointer(){ // use this function after using nowPtr
         if(nowPtr < 0) return;
@@ -44,7 +149,7 @@ private:
     }
 public:
     DiskManager() = delete;
-    explicit DiskManager(const string & _name):fileName(_name){
+    explicit DiskManager(const string & _name,int _capacity):fileName(_name),cache(_capacity,this),assistantMap(_capacity){
         file.open(fileName,ios::in);
         if(file.fail()){
             file.clear();
@@ -91,17 +196,40 @@ public:
         }
     }
     void write(const T & data,int position){
-        file.seekp(position,ios::beg);
-        file.write(reinterpret_cast<const char *>(&data),sizeof(data));
+        if(assistantMap.exist(position)){
+            typename List::Node * tmp = assistantMap.find(position);
+            cache.update(tmp);
+            *tmp->data = data;
+        }else {
+            if (file.fail()) {
+                file.clear();
+                file.close();
+                file.open(fileName, ios::in | ios::out | ios::binary);
+            }
+            file.seekp(position, ios::beg);
+            file.write(reinterpret_cast<const char *>(&data), sizeof(data));
+        }
     }
-    T read(int index) {
-        T temp;
-        file.seekp(index,ios::beg);
-        file.read(reinterpret_cast< char *>(&temp),sizeof(temp));
-        return temp;
+    T & read(int index) {
+        if(assistantMap.exist(index)){
+            typename List::Node * tmp = assistantMap.find(index);
+            cache.update(tmp);
+            return *tmp->data;
+        }else {
+            T temp;
+            file.seekp(index, ios::beg);
+            file.read(reinterpret_cast< char *>(&temp), sizeof(temp));
+            typename List::Node * tmp = cache.insert(index,temp);
+            assistantMap.insert(index,tmp);
+            return *tmp->data;
+        }
     }
 
     void erase(int index){
+        if(assistantMap.exist(index)){
+            cache.erase(assistantMap.find(index));
+            assistantMap.erase(index);
+        }
         addSpare(index);
     }
 
@@ -138,6 +266,14 @@ public:
         file.write(reinterpret_cast<const char *>(&temp),sizeof(temp));
         file.seekp(sizeof(temp),ios::beg);
         file.write(reinterpret_cast<const char *>(&nowPtr),sizeof(nowPtr));
+        assistantMap.clear();
+        cache.clear();
     }
+#ifdef debug
+    void show(){
+        cache.show();
+    }
+#endif
+
 };
 #endif //TRAIN_TICKET_DISKMANAGER_HPP

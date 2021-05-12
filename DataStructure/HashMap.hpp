@@ -6,8 +6,13 @@
 #define TRAIN_TICKET_HASHMAP_HPP
 
 #include <functional>
-
-template <class Key,class Data,class Hash = std::hash<Key> >
+/*
+ * hash function can be personalized. eg:
+ * struct myCompare{
+ *     bool operator() (const object & x,const object & y){}
+ * };
+ */
+template <class Key,class Data,class Hash = std::hash<Key>>
 class HashMap{
 private:
     class LinkList{
@@ -96,6 +101,11 @@ public:
     Data & find(const Key & _key){
         int index = getIndex(_key);
         return dataSet[index].find(_key)->data;
+    }
+
+    void clear(){
+        delete [] dataSet;
+        dataSet = new LinkList[capacity];
     }
 };
 #endif //TRAIN_TICKET_HASHMAP_HPP
