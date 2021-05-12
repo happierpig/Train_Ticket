@@ -2,7 +2,7 @@
 #ifndef TICKETSYSTEM_2021_MAIN_ALL_HEADER_H
 #define TICKETSYSTEM_2021_MAIN_ALL_HEADER_H
 
-#include "BPlusTree.hpp"
+#include "DataStructure/BPlusTree.hpp"
 #include <iostream>
 #include <cstdio>
 #include <cstring>
@@ -21,6 +21,7 @@
 #define DEAL_FILE "deal_file"
 #define LOCATION_FILE "location_file"
 #define WAITING_LIST_FILE "waiting_list_file"
+#define MAX_MONEY_COST 2000000000
 
 using namespace std ;
 
@@ -32,8 +33,11 @@ void get_split_context( string &input_str , stringstream &temp_stream ) ;
 
 enum ticket_status{ succeed , pending , refunded };
 
+class train ;
+
 class date
 {
+    friend class train ;
 private:
     int month = 0 ;
     int day = 0 ;
@@ -64,7 +68,7 @@ public:
 
     date operator-( int interval_time ) ;
 
-    int operator-( date other_date ) ; // todo 调用次数不多，采用 add_day -> add_hour -> add_minute 分步得答案
+    int operator-( date other_date ) const ; // todo 调用次数不多，采用 add_day -> add_hour -> add_minute 分步得答案
 
     bool operator<( const date &other ) const ;
 
@@ -81,6 +85,8 @@ public:
     void get_other_time( date other_date ) ;
 
     void print_date() ; // 4 参数为 0 则 xx-xx xx:xx
+
+    friend ostream &operator<<( ostream &os , const date &temp_date ) ;
 
 };
 

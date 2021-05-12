@@ -160,27 +160,29 @@ void date::get_other_day(date other_date) { month = other_date.month ; day = oth
 
 void date::get_other_time(date other_date) { hour = other_date.hour ; minute = other_date.minute ; }
 
-int date::operator-(date other_date)
+int date::operator-(date other_date) const
 {
     date temp_date = other_date ;
     int counter = 0 ;
-    while( temp_date + 1440 < *this ){
+    while( temp_date + 1440 < *this || temp_date + 1440 == *this ){
         temp_date.add_day() ;
         counter += 1440 ;
     }
-    temp_date.del_day() ;
-    counter -= 1440 ;
-    while ( temp_date + 60 < *this ){
+    while ( temp_date + 60 < *this || temp_date + 60 == *this ){
         temp_date.add_hour() ;
         counter += 60 ;
     }
-    temp_date.del_hour() ;
-    counter -= 60 ;
-    while ( temp_date + 1 < *this ){
+    while ( temp_date + 1 < *this || temp_date + 1 == *this ){
         temp_date.add_minute() ;
         counter += 1 ;
     }
     return counter ;
+}
+
+ostream &operator<<( ostream &os , const date &temp_date )
+{
+    os << '0' << temp_date.month << '-' << temp_date.day << ' ' << temp_date.hour << ':' << temp_date.minute ;
+    return os ;
 }
 
 
@@ -225,6 +227,7 @@ user& user::operator=(const user &other_user) {
     strcpy( chinese_name , other_user.chinese_name ) ;
     strcpy( mailAddr , other_user.mailAddr ) ;
     privilege = other_user.privilege ;
+    deal_sum = other_user.deal_sum ;
     return *this ;
 }
 
@@ -251,7 +254,7 @@ bool user::operator>( const user &other_user ) const
 }
 
 ostream &operator<<(ostream &os, const user &temp_user){
-    os << temp_user.user_name ;
+    os << "user: " << temp_user.user_name << " deal_sum -> " << temp_user.deal_sum  ;
     return os ;
 }
 
@@ -340,15 +343,19 @@ bool train::is_released() { return isReleased ; }
 
 bool train::in_sale( date purchase_day , int location )
 {
-    date temp_date = purchase_day ;
-    temp_date = temp_date - all_departure[location] ;
-    if ( temp_date < sale_begin && !temp_date.isSameDay(sale_begin) ) return false ;
-    if ( temp_date > sale_end && !temp_date.isSameDay(sale_end) ) return false ;
+    date temp_date_1 = purchase_day , temp_date_2 = purchase_day ;
+    temp_date_1.hour = 23 ; temp_date_1.minute = 59 ; // 一天的最后一刻搭车
+    temp_date_2.hour = 0 ; temp_date_2.minute = 0 ;  // 一天的第一刻搭车
+    temp_date_1 = temp_date_1 - all_departure[location] ;
+    temp_date_2 = temp_date_2 - all_departure[location] ;
+    if ( temp_date_1 < sale_begin  ) return false ;
+    if ( temp_date_2 > sale_end  ) return false ;
     return true ;
 }
 
 void train::ticket_decrease( date purchase_day, int location_1, int location_2, int purchase_ticket )
 {
+    purchase_day.get_other_time(all_set_off[location_1]) ;
     purchase_day = purchase_day - all_departure[location_1] ;
     int temp_day = purchase_day.get_date_index() ;
     for ( int i = location_1 ; i < location_2 ; i++ ){
@@ -385,7 +392,7 @@ void train::print_train(date query_day)
     for ( int i = 2 ; i <= station_num ; i++ ){
         cout << " -> " ;
         query_day.print_date() ;
-        cout << " " << all_price[i-1] << " " << all_seat[index_day][i-2] << endl ;
+        cout << " " << all_price[i-1] << " " << all_seat[index_day][i-1] << endl ;
         cout << all_station[i] << " " ;
         query_day = query_day + ( all_arrival[i] - all_departure[i-1] ) ;
         query_day.print_date() ;
@@ -407,6 +414,7 @@ int train::get_time(int location_1, int location_2)
 
 int train::get_max_available_ticket(date purchase_day, int location_1, int location_2)
 {
+    purchase_day.get_other_time(all_set_off[location_1]) ;
     purchase_day = purchase_day - all_departure[location_1] ;
     int temp_day = purchase_day.get_date_index() , min_num = seat_num ;
     for ( int i = location_1 ; i < location_2 ; i++ ){
@@ -448,6 +456,7 @@ bool train::operator>(const train &other_train) const{ return ( strcmp( trainID 
 
 void train::ticket_increase(date purchase_day, int location_1, int location_2, int purchase_ticket)
 {
+    purchase_day.get_other_time(all_set_off[location_1]) ;
     purchase_day = purchase_day - all_departure[location_1] ;
     int temp_day = purchase_day.get_date_index() ;
     for ( int i = location_1 ; i < location_2 ; i++ ){
@@ -456,7 +465,7 @@ void train::ticket_increase(date purchase_day, int location_1, int location_2, i
 }
 
 ostream &operator<<(ostream &os, const train &temp_train) {
-    os << temp_train.trainID ;
+    os << "train: " << temp_train.trainID ;
     return os ;
 }
 
@@ -482,7 +491,7 @@ bool IndexKey::operator>=(const IndexKey &other_key) const { return (*this) > ot
 bool IndexKey::operator<=(const IndexKey &other_key) const { return (*this) < other_key || (*this) == other_key ; }
 
 ostream &operator<<(ostream &os , const IndexKey &temp_key) {
-    os << temp_key.real_key  ;
+    os << "IndexKey " << temp_key.real_key  ;
     return os ;
 }
 
@@ -553,7 +562,13 @@ ticket_deal &ticket_deal::operator=(const ticket_deal &other)
 }
 
 ostream &operator<<( ostream &os , const ticket_deal &temp_deal ) {
-    os << temp_deal.trainID << " " << temp_deal.user_name ;
+    os << "ticket_deal: trainID -> " <<  temp_deal.trainID << " user -> " << temp_deal.user_name << " status -> " ;
+    switch (temp_deal.deal_status) {
+        case succeed : os << "[success]" ; break ;
+        case pending : os << "[pending]" ; break ;
+        case refunded : os << "[refunded]" ; break ;
+    }
+    os << " ticket_num -> " << temp_deal.ticket_num  << " departure_time -> " << temp_deal.departure_time << " arrival_time -> " << temp_deal.arrival_time ;
     return os ;
 }
 

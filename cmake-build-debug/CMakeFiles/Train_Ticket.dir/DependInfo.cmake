@@ -4,6 +4,8 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
+  "/Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/Engine.cpp" "/Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/cmake-build-debug/CMakeFiles/Train_Ticket.dir/Engine.cpp.o"
+  "/Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/all_header.cpp" "/Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/cmake-build-debug/CMakeFiles/Train_Ticket.dir/all_header.cpp.o"
   "/Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/main.cpp" "/Users/dreamer/Desktop/Programm/大一 下/农田/Train_Ticket/cmake-build-debug/CMakeFiles/Train_Ticket.dir/main.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "AppleClang")

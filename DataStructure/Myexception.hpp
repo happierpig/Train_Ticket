@@ -15,7 +15,7 @@ public:
         return this->content;
     }
 };
-void error(const char * ss){
-    throw exception(ss);
-}
+//void error(const char * ss){
+//    throw exception(ss);
+//}
 #endif //TRAIN_TICKET_MYEXCEPTION_HPP

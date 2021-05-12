@@ -1,4 +1,6 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/Train_Ticket.dir/Engine.cpp.o"
+  "CMakeFiles/Train_Ticket.dir/all_header.cpp.o"
   "CMakeFiles/Train_Ticket.dir/main.cpp.o"
   "Train_Ticket"
   "Train_Ticket.pdb"

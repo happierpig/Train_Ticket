@@ -1,1 +1,1 @@
-/Library/Developer/CommandLineTools/usr/bin/c++  -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names  CMakeFiles/Train_Ticket.dir/main.cpp.o  -o Train_Ticket 
+/Library/Developer/CommandLineTools/usr/bin/c++ -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/Train_Ticket.dir/main.cpp.o CMakeFiles/Train_Ticket.dir/all_header.cpp.o CMakeFiles/Train_Ticket.dir/Engine.cpp.o -o Train_Ticket 

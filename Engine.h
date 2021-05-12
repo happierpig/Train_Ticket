@@ -8,6 +8,8 @@ using namespace std ;
 
 enum cost_type{ money , mytime };
 
+//#define my_debug
+
 class ride
 {
 public:
@@ -23,6 +25,8 @@ public:
 
     bool operator<( const ride &other ) const ;
 
+
+
 };
 
 class my_system
@@ -32,8 +36,8 @@ private:
     map<string,user> log_in_user ; // todo 考虑 unordered_map<string,int> log_in_user 前存用户ID 后存 priority
     stringstream command_stream ;
     BPlusTree<IndexKey,user> user_tree ;
-    BPlusTree<IndexKey,train,200,8> train_tree ;
-    BPlusTree<IndexKey,ticket_deal> user_deal_tree ;
+    BPlusTree<IndexKey,train,50,5> train_tree ;
+    BPlusTree<IndexKey,ticket_deal,200,400> user_deal_tree ; // todo 修改参数信息丢失
     BPlusTree<IndexKey,IndexKey> location_train_tree ;
     BPlusTree<IndexKey,ticket_deal> waiting_tree ;
     // bool first_create = true ; // 第一次打开系统特判
@@ -52,7 +56,7 @@ public:
 
     void success() ;
 
-    void fail() ; // fail 之后要 return
+    void fail( string err_inf = "" ) ; // fail 之后要 return
 
     void user_update( user &u_user ) ;
 

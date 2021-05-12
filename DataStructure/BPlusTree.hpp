@@ -9,6 +9,7 @@
 #include "functions.hpp"
 #include <cstring>
 #include <vector>
+#include <iostream>
 //#include "vector.hpp"
 //#define debug // using Xiatian's debug method
 
@@ -250,7 +251,6 @@ private:
         }
 
 #ifdef debug
-
         void show() const {
                 cout << "[leafNode]" << endl;
                 cout << "position: " << position << endl;
@@ -421,6 +421,7 @@ private:
                 // update father node
                 Node * fatherNode = theTree->nodeDisk.read(this->father);
                 int keyPos = fatherNode->findKeyPos(this->position);
+                // there was a bug ~~~~2333
                 this->nodeKey[this->childSize-1] = fatherNode->nodeKey[keyPos];
                 fatherNode->nodeKey[keyPos] = rightBro->nodeKey[0];
                 theTree->nodeDisk.write(fatherNode,fatherNode->position);
