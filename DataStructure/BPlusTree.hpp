@@ -608,11 +608,6 @@ public:
             leafNode * tmpLeaf = leafDisk.read(leafPos);
             tmpLeaf->addElement(_key,_data,this);
         }
-#ifdef debug
-        std::cout << "insert key : " << _key << " _data : " << _data << "below -------" << std::endl;
-        nodeDisk.show();
-        leafDisk.show();
-#endif
     }
     // delete the specific data with the key
     bool erase(const Key & _key,const Data & _data){
@@ -629,11 +624,6 @@ public:
         leafNode * targetLeafNode = leafDisk.read(leafPos);
         targetLeafNode->deleteElement(keyPos,this);
         --treeInfo.size;
-#ifdef debug
-        std::cout << "erase key : " << _key << " _data : " << _data << "below -------" << std::endl;
-        nodeDisk.show();
-        leafDisk.show();
-#endif
         return true;
     }
     // find all data associated with the key
