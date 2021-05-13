@@ -369,7 +369,7 @@ bool train::ticket_is_enough(date purchase_day, int location_1, int location_2, 
     return min_num >= purchase_ticket ;
 }
 
-void train::print_travel(date purchase_day, int location_1, int location_2)
+void train::print_travel( date purchase_day, int location_1, int location_2)
 {
     date set_off_date , arrive_in_date ;
     set_off_date.get_other_day(purchase_day) ;
@@ -467,6 +467,21 @@ void train::ticket_increase(date purchase_day, int location_1, int location_2, i
 ostream &operator<<(ostream &os, const train &temp_train) {
     os << "train: " << temp_train.trainID ;
     return os ;
+}
+
+bool train::can_take_in_time( date &arrive_in_date , int location )
+{
+    date temp_date = arrive_in_date ;
+    temp_date.get_other_time(all_set_off[location]) ;
+    if ( temp_date < arrive_in_date ) temp_date.add_day() ;
+    arrive_in_date = temp_date ;
+    if ( in_sale(arrive_in_date,location) ) return true ;
+    temp_date = temp_date - all_departure[location] ; // 去到可以发车那一刻
+    if ( temp_date < sale_begin ){
+        arrive_in_date = all_set_off[location] ;
+        return true ;
+    }
+    return false ;
 }
 
 IndexKey::IndexKey(string &input_str)

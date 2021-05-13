@@ -2,7 +2,7 @@
 #ifndef TICKETSYSTEM_2021_MAIN_ALL_HEADER_H
 #define TICKETSYSTEM_2021_MAIN_ALL_HEADER_H
 
-#include "DataStructure/BPlusTree.hpp"
+#include "BPlusTree.hpp"
 #include <iostream>
 #include <cstdio>
 #include <cstring>
@@ -39,7 +39,7 @@ class date
 {
     friend class train ;
 private:
-    int month = 0 ;
+    int month = 0 ; // todo 重构成单 int 来进行操作
     int day = 0 ;
     int hour = 0 ;
     int minute = 0 ;
@@ -146,6 +146,7 @@ class train
 {
     friend class my_system ;
     friend class IndexKey ;
+    friend class ride ;
 private:
     char trainID[MAX_STR_LENGTH] = {0} ;
     char train_type = 0 ;
@@ -165,9 +166,9 @@ public:
 
     train(){} ;
 
-    train( para &input_para ) ;
+    train( para &input_para ) ; // todo 需要拷贝构造？
 
-    train &operator=( const train &other ) ;
+    train &operator=( const train &other ) ; // todo 避免调用
 
     bool operator<( const train &other_train ) const ;
 
@@ -184,6 +185,8 @@ public:
     bool is_released() ;
 
     bool in_sale( date purchase_day , int location ) ;
+
+    bool can_take_in_time( date &arrive_in_date , int location ) ;
 
     void ticket_decrease( date purchase_day , int location_1 , int location_2 , int purchase_ticket ) ; // 消耗 purchase_day 从 location_1 到 location_2 的车票
 
@@ -249,7 +252,7 @@ private:
     date departure_time , arrival_time ;
     ticket_status deal_status ;
 
-public:
+public: // todo 写一个 modify( train & , int location_1 , int location_2 , date )
 
     ticket_deal(){}
 

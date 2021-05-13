@@ -15,7 +15,8 @@ extern    bool stop_core = false ;
 
 int main()
 {
-//    freopen("1.in","r",stdin) ;
+//    freopen("10.in","r",stdin) ;
+//    freopen("temp_out.txt","w",stdout) ;
     while (getline(cin,real_command) ){
         train_ticket_system.process_command(real_command) ;
     }
