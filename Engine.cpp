@@ -52,7 +52,7 @@ void ride::ride_modify( train &temp_train , int temp_location_1 , int temp_locat
 
 
 my_system::my_system() : user_tree(string(USER_FILE)) , train_tree(string(TRAIN_FILE)) , user_deal_tree(string(DEAL_FILE)) ,
-                   location_train_tree(string(LOCATION_FILE)) , waiting_tree(string(WAITING_LIST_FILE)) // 委托构造所有的树
+                         location_train_tree(string(LOCATION_FILE)) , waiting_tree(string(WAITING_LIST_FILE)) // 委托构造所有的树
 {
 
 }
@@ -199,13 +199,13 @@ void my_system::modify_profile() // todo 用 string -> int 存 用户名 -> prio
     if ( ans_vec.empty() || !check_priority(log_in_user[temp_para.c],ans_vec[0]) ) { fail(); return ; }
     stringstream change_stream ;
     if ( !temp_para.p.empty() )
-        { change_stream << temp_para.p ; change_stream >> ans_vec[0].password ; change_stream.str("") ; change_stream.clear() ; }
+    { change_stream << temp_para.p ; change_stream >> ans_vec[0].password ; change_stream.str("") ; change_stream.clear() ; }
     if ( !temp_para.n.empty() )
-        { change_stream << temp_para.n ; change_stream >> ans_vec[0].chinese_name ; change_stream.str("") ; change_stream.clear() ; }
+    { change_stream << temp_para.n ; change_stream >> ans_vec[0].chinese_name ; change_stream.str("") ; change_stream.clear() ; }
     if ( !temp_para.m.empty() )
-        { change_stream << temp_para.m ; change_stream >> ans_vec[0].mailAddr ; change_stream.str("") ; change_stream.clear() ; }
+    { change_stream << temp_para.m ; change_stream >> ans_vec[0].mailAddr ; change_stream.str("") ; change_stream.clear() ; }
     if ( !temp_para.g.empty() )
-        { change_stream << temp_para.g ; change_stream >> ans_vec[0].privilege ; change_stream.str("") ; change_stream.clear() ; }
+    { change_stream << temp_para.g ; change_stream >> ans_vec[0].privilege ; change_stream.str("") ; change_stream.clear() ; }
     if ( ans_vec[0].privilege >= log_in_user[temp_para.c].privilege ) { fail(); return ; }
     if ( check_login(temp_para.u) ){
         log_in_user[temp_para.u] = ans_vec[0] ;
@@ -507,7 +507,7 @@ void my_system::buy_ticket()
     user_tree.find(user_key,user_vec) ;
     date purchase_day(temp_para.d) ; // todo 将 location 计算一步到位
     if ( ans_vec.empty() || !ans_vec[0].is_released() || ans_vec[0].get_location(temp_para.f) == -1 || ans_vec[0].get_location(temp_para.t) == -1 || !ans_vec[0].in_sale(purchase_day,ans_vec[0].get_location(temp_para.f)) )
-        { fail() ; return ; } // todo 将 empty 单独拿出来判断
+    { fail() ; return ; } // todo 将 empty 单独拿出来判断
     ticket_deal temp_deal(temp_para) ;
     int location_1 = ans_vec[0].get_location(temp_para.f) , location_2 = ans_vec[0].get_location(temp_para.t) ;
     int available_ticket_num = ans_vec[0].get_max_available_ticket(purchase_day,location_1,location_2) ; // 最大购买数
@@ -560,7 +560,7 @@ void my_system::query_order()
     cout << ans_vec.size() << endl ;
     sort(ans_vec.begin(),ans_vec.end(),less<ticket_deal>()) ;
     for ( int i = ans_vec.size() - 1 ; i >= 0 ; i-- ){
-            ans_vec[i].print_deal() ;
+        ans_vec[i].print_deal() ;
     }
 }
 

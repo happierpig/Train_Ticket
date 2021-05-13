@@ -18,14 +18,24 @@ public:
     int location_1 = 0  , location_2 = 0 ;
     cost_type real_type = mytime ;
     int money_cost = 0 , time_cost = 0 ;
+    date ride_purchase_day ; // 此处 day 是确切时间
+    int ride_max_available_ticket = 0 ;
 
 public:
 
     ride(){} ;
 
+    ride( train &temp_train , int temp_location_1 , int temp_location_2 , date purchase_day ) ;
+
     bool operator<( const ride &other ) const ;
 
+    void print_ride() ;
 
+    void ride_modify( train &temp_train , int temp_location_1 , int temp_location_2 , date purchase_day ) ;
+
+    // todo 用 ride 实现 print_travel
+
+    // todo 用 train 来 构造 ride
 
 };
 
@@ -36,8 +46,8 @@ private:
     map<string,user> log_in_user ; // todo 考虑 unordered_map<string,int> log_in_user 前存用户ID 后存 priority
     stringstream command_stream ;
     BPlusTree<IndexKey,user> user_tree ;
-    BPlusTree<IndexKey,train,200,5,31> train_tree ;
-    BPlusTree<IndexKey,ticket_deal,200,200> user_deal_tree ; // todo 修改参数信息丢失
+    BPlusTree<IndexKey,train,200,6,31> train_tree ;
+    BPlusTree<IndexKey,ticket_deal,200,150> user_deal_tree ; // todo 修改参数信息丢失
     BPlusTree<IndexKey,IndexKey> location_train_tree ;
     BPlusTree<IndexKey,ticket_deal> waiting_tree ;
     // bool first_create = true ; // 第一次打开系统特判
@@ -70,7 +80,7 @@ public:
 
     void process_command( string &all_command ) ;
 
-    void make_ride( vector<train> &from_train , vector<train> &to_train , string &from_location , string &to_location , vector<pair<ride,train>> &ans_vec ) ;
+    void make_ride( string &from_location , string &to_location , vector<ride> &ans_vec , vector<IndexKey> &all_train_key , date purchase_day ) ; // todo 重构
 
     void add_user() ;
 
@@ -92,7 +102,7 @@ public:
 
     void query_ticket() ;
 
-    void query_transfer() ;
+    void query_transfer() ; // todo 第一辆车乘坐时间更少
 
     void buy_ticket() ;
 
