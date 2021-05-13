@@ -21,7 +21,7 @@ using myFunctions::lower_bound;
 using std::cout;
 using std::endl;
 
-template <class Key,class Data,int M = 200,int L = 200>
+template <class Key,class Data,int M = 200,int L = 200,int C = 171>
 class BPlusTree{
 private:
     class basicInfo{
@@ -587,7 +587,7 @@ private:
 public:
     // interfaces for my B+Tree
     BPlusTree() = delete;
-    explicit BPlusTree(const string & _name):leafDisk(_name + "_leaf.dat",131),nodeDisk(_name + "_node.dat",131){
+    explicit BPlusTree(const string & _name):leafDisk(_name + "_leaf.dat",C),nodeDisk(_name + "_node.dat",131){
         treeInfo = nodeDisk.tellInfo();
     }
     ~BPlusTree(){
