@@ -21,7 +21,7 @@ using myFunctions::lower_bound;
 using std::cout;
 using std::endl;
 
-template <class Key,class Data,int M = 200,int L = 200,int C = 171>
+template <class Key,class Data,int M = 300,int L = 200,int C = 151>
 class BPlusTree{
 private:
     class basicInfo{
