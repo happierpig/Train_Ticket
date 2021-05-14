@@ -11,7 +11,7 @@ namespace myFunctions{
     int upper_bound(const T * const head,int size,const T & _target){
         if(!size) return 0;
         if(_target < head[0]) return 0;
-        if(_target >= head[size-1]) return size;
+        if(head[size-1] < _target || head[size-1] == _target) return size;
         int l = 0,r = size - 1;
         while(l < r){
             int mid = (l+r) >> 1;
@@ -27,12 +27,12 @@ namespace myFunctions{
     template<class T>
     int lower_bound(const T * const head,int size,const T & _target){
         if(!size) return 0;
-        if(_target <= head[0]) return 0;
-        if(_target > head[size-1]) return size-1;
+        if(_target < head[0] || _target == head[0]) return 0;
+        if(head[size-1] < _target) return size-1;
         int l = 0,r = size - 1;
         while(l < r){
             int mid = (l+r+1) >> 1;
-            if(_target > head[mid]) l = mid;
+            if(head[mid] < _target) l = mid;
             else r = mid - 1;
         }
         return l;

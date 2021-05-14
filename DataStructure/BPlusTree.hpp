@@ -2,6 +2,10 @@
 // Created by 赵先生 on 2021/4/8.
 //
 
+/*
+ * BPlusTree.hpp
+ * implement a container which transports data with disk by a prominent efficiency
+ */
 #ifndef TRAIN_TICKET_BPLUSTREE_HPP
 #define TRAIN_TICKET_BPLUSTREE_HPP
 #include "DiskManager.hpp"
@@ -21,6 +25,12 @@ using myFunctions::lower_bound;
 using std::cout;
 using std::endl;
 
+/*
+ * class Key should overload operator < and ==
+ * M means the size of child in internal node
+ * L represents the size of data stored in leaf node
+ * C means the size of leaf node which is temporarily stored in cache
+ */
 template <class Key,class Data,int M = 300,int L = 200,int C = 151>
 class BPlusTree{
 private:
@@ -587,7 +597,7 @@ private:
 public:
     // interfaces for my B+Tree
     BPlusTree() = delete;
-    explicit BPlusTree(const string & _name):leafDisk(_name + "_leaf.dat",C),nodeDisk(_name + "_node.dat",131){
+    explicit BPlusTree(const string & _name):leafDisk(_name + "_leaf.dat",C),nodeDisk(_name + "_node.dat",171){
         treeInfo = nodeDisk.tellInfo();
     }
     ~BPlusTree(){
