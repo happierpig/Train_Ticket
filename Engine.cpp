@@ -205,7 +205,7 @@ void my_system::modify_profile() // todo 用 string -> int 存 用户名 -> prio
     { change_stream << temp_para.m ; change_stream >> ans_vec[0].mailAddr ; change_stream.str("") ; change_stream.clear() ; }
     if ( !temp_para.g.empty() )
     { change_stream << temp_para.g ; change_stream >> ans_vec[0].privilege ; change_stream.str("") ; change_stream.clear() ; }
-    if ( ans_vec[0].privilege >= log_in_user[temp_para.c].privilege ) { fail(); return ; }
+    if ( ans_vec[0].privilege >= log_in_user[temp_para.c].privilege && !temp_para.g.empty() ) { fail(); return ; }
     if ( check_login(temp_para.u) ){
         log_in_user[temp_para.u] = ans_vec[0] ;
     }
