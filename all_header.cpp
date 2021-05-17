@@ -515,7 +515,7 @@ ticket_deal::ticket_deal(para &input_para)
     stringstream change_stream ; string temp_str ; // date_str
     change_stream << input_para.u << " " << input_para.i << " " << input_para.d << " " << input_para.n << " " << input_para.f << " " << input_para.t  ;
     change_stream >> user_name >> trainID >> temp_str >> ticket_num >> from_location >> to_location ;
-    departure_time = date(temp_str) ;
+    departure_time = date(temp_str) ; // todo 把这个留给 modify
 }
 
 bool ticket_deal::operator<(const ticket_deal &other_deal) const
@@ -585,6 +585,16 @@ ostream &operator<<( ostream &os , const ticket_deal &temp_deal ) {
     }
     os << " ticket_num -> " << temp_deal.ticket_num  << " departure_time -> " << temp_deal.departure_time << " arrival_time -> " << temp_deal.arrival_time ;
     return os ;
+}
+
+void ticket_deal::ticket_modify( user &temp_user , train &temp_train, int location_1, int location_2, date purchase_day)
+{
+    price = temp_train.get_price(location_1,location_2) ;
+    deal_sequence = temp_user.deal_sum + 1 ;
+    deal_priority = temp_train.waiting_length + 1 ;
+    departure_time = purchase_day ;
+    departure_time.get_other_time(temp_train.all_set_off[location_1]) ;
+    arrival_time = departure_time + temp_train.get_time(location_1,location_2) ;
 }
 
 

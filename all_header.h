@@ -110,6 +110,7 @@ class user
 {
     friend class my_system ;
     friend class IndexKey ;
+    friend class ticket_deal ;
 private:
     char user_name[MAX_STR_LENGTH] = {0} ;
     char password[MAX_STR_LENGTH] = {0} ;
@@ -147,6 +148,7 @@ class train
     friend class my_system ;
     friend class IndexKey ;
     friend class ride ;
+    friend class ticket_deal ;
 private:
     char trainID[MAX_STR_LENGTH] = {0} ;
     char train_type = 0 ;
@@ -265,6 +267,8 @@ public: // todo 写一个 modify( train & , int location_1 , int location_2 , da
     bool operator==( const ticket_deal &other_deal ) const ;
 
     bool operator>( const ticket_deal &other_deal ) const ;
+
+    void ticket_modify( user &temp_user , train &temp_train , int location_1 , int location_2 , date purchase_day ) ;
 
     void change_status( ticket_status temp_status ) ;
 
