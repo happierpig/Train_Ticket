@@ -191,7 +191,7 @@ void my_system::query_profile()
 void my_system::modify_profile() // todo 用 string -> int 存 用户名 -> priority
 {
     para temp_para(command_stream) ;
-    if ( !check_login(temp_para.c) ) { fail(); return ; }
+    if ( !check_login(temp_para.c) ) { fail(); return ; } // todo -g 参数
     IndexKey user_key(temp_para.u) ;
     vector<user> ans_vec ;
     user_tree.find(user_key,ans_vec) ;
@@ -315,7 +315,7 @@ void my_system::query_ticket() // todo 在找 train_key 的时候就排除不重
     }
 }
 
-void my_system::query_transfer()
+void my_system::query_transfer() // todo -g 参数忽略可以相等
 {
     para temp_para(command_stream) ;
     IndexKey from_location_key(temp_para.s) ;
@@ -479,13 +479,13 @@ void my_system::refund_ticket() // todo line 265 refund 失败 finish
         change_stream << temp_para.n ;
         change_stream >> target_deal ;
     }
-    IndexKey user_key(temp_para.u) ;
+    IndexKey user_key(temp_para.u) ; // todo 不可以 refund 已经 refund 的内容
     vector<ticket_deal> ans_vec , waiting_vec ;
     user_deal_tree.find(user_key,ans_vec) ;
     sort(ans_vec.begin(),ans_vec.end(),less<ticket_deal>()) ;
     if ( target_deal > ans_vec.size() ) { fail("no so many deals") ; return ; } // 没有那么多订单
     ticket_deal temp_deal = ans_vec[ans_vec.size()-target_deal] ;
-    if ( temp_deal.deal_status == refunded ) { success() ; return ; } // 直接成功
+    if ( temp_deal.deal_status == refunded ) { fail() ; return ; } // 直接成功
     string train_str = temp_deal.trainID , from_location = temp_deal.from_location , to_location = temp_deal.to_location ; // 修改 waiting_list \ train \ deal
     IndexKey train_key(train_str) ;
     if ( temp_deal.deal_status == pending ){ // todo 判 queue 状态

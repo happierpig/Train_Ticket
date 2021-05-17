@@ -712,12 +712,16 @@ public:
     }
 
     // this function provides a way to modify the data without insert and erase.
-    // Attention: to avoid segmentation fault ,you must use the pointer to modify at once.
-    void update(const Key & _key,vector<Data *> & vec_ans){
-        if(treeInfo.root == -1 || treeInfo.head == -1) return;
+    // Attention : 1. make sure that _data exists 2. modify it at once
+    Data & update(const Key & _key,const Data & _data){
+        if(treeInfo.root == -1 || treeInfo.head == -1) throw "update debug #1";
+        int leafPos = -1,keyPos = -1;
         int leafPosition = findLeaf(_key);
         leafNode * tmpLeafNode = leafDisk.read(leafPosition);
-        tmpLeafNode->findElement(_key,vec_ans,this,true,true);
+        tmpLeafNode->eraseAssistant(_key,_data,this,true,true,leafPos,keyPos);
+        if(leafPos == -1) throw "update debug #2";
+        leafNode * targetLeafNode = leafDisk.read(leafPos);
+        return targetLeafNode->dataSet[keyPos];
     }
 #ifdef debug
 private:
