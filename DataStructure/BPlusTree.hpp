@@ -130,6 +130,22 @@ private:
                 tmpNode->findElement(_key,vec_ans,theTree,false,true);
             }
         }
+        void findElement(const Key & _key,vector<Data *>& vec_ans,BPlusTree * theTree,bool left,bool right){
+            int pos1 = lower_bound(this->dataKey,this->dataSize,_key);
+            int pos2 = upper_bound(this->dataKey,this->dataSize,_key);
+            for(int i = pos1;i <= pos2 && i < this->dataSize;++i){
+                if(this->dataKey[i] == _key) vec_ans.push_back(&this->dataSet[i]);
+            }
+            if(this->dataKey[0] == _key && this->leftBrother != -1 && left){
+                leafNode * tmpNode = theTree->leafDisk.read(this->leftBrother);
+                tmpNode->findElement(_key,vec_ans,theTree,true,false);
+            }
+            if(this->dataKey[dataSize-1] == _key && this->rightBrother != -1 && right){
+                leafNode * tmpNode = theTree->leafDisk.read(this->rightBrother);
+                tmpNode->findElement(_key,vec_ans,theTree,false,true);
+            }
+        }
+
         void eraseAssistant(const Key & _key,const Data & _data,BPlusTree * theTree,bool left,bool right,int & leafPos,int & keyPos){
             int pos1 = lower_bound(this->dataKey,this->dataSize,_key);
             int pos2 = upper_bound(this->dataKey,this->dataSize,_key);
@@ -693,6 +709,15 @@ public:
             if(tmpNode->rightBrother == -1) break;
             ptr = tmpNode->rightBrother;
         }
+    }
+
+    // this function provides a way to modify the data without insert and erase.
+    // Attention: to avoid segmentation fault ,you must use the pointer to modify at once.
+    void update(const Key & _key,vector<Data *> & vec_ans){
+        if(treeInfo.root == -1 || treeInfo.head == -1) return;
+        int leafPosition = findLeaf(_key);
+        leafNode * tmpLeafNode = leafDisk.read(leafPosition);
+        tmpLeafNode->findElement(_key,vec_ans,this,true,true);
     }
 #ifdef debug
 private:
