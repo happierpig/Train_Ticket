@@ -243,15 +243,18 @@ private:
                 dataSet[i] = dataSet[i+1];
             }
             --dataSize;
-            if(dataSize > MIN_RECORD-1){
-                if(keyPos == 0){
-                    Node * tmpFather = theTree->nodeDisk.read(this->father);
-                    int tmp = tmpFather->findKeyPos(this->position);
-                    if(tmp != 0){
-                        tmpFather->nodeKey[tmp-1] = this->dataKey[0];
-                        theTree->nodeDisk.write(tmpFather,tmpFather->position);
-                    }
+            if(keyPos == 0 && this->position != theTree->treeInfo.head){
+                Node * tmpFather = theTree->nodeDisk.read(this->father);
+                int tmp = tmpFather->findKeyPos(this->position);
+                while(tmp == 0){
+                    int _pos = tmpFather->position;
+                    tmpFather = theTree->nodeDisk.read(tmpFather->father);
+                    tmp = tmpFather->findKeyPos(_pos);
                 }
+                tmpFather->nodeKey[tmp-1] = this->dataKey[0];
+                theTree->nodeDisk.write(tmpFather,tmpFather->position);
+            }
+            if(dataSize > MIN_RECORD-1){
                 theTree->leafDisk.write(this,this->position);
                 return;
             }
