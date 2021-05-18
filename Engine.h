@@ -43,11 +43,11 @@ class my_system
 {
 private:
     //map<user,int> log_in_user ;
-    map<string,user> log_in_user ; // todo 考虑 unordered_map<string,int> log_in_user 前存用户ID 后存 priority
+    unordered_map<string,int> log_in_user ; // todo 考虑 unordered_map<string,int> log_in_user 前存用户ID 后存 priority
     stringstream command_stream ;
     BPlusTree<IndexKey,user> user_tree ;
     BPlusTree<IndexKey,train,300,6,31> train_tree ;
-    BPlusTree<IndexKey,ticket_deal,300,100> user_deal_tree ; // todo 修改参数信息丢失
+    BPlusTree<IndexKey,ticket_deal,300,150> user_deal_tree ; // todo 修改参数信息丢失
     BPlusTree<IndexKey,IndexKey> location_train_tree ;
     BPlusTree<IndexKey,ticket_deal> waiting_tree ;
     // bool first_create = true ; // 第一次打开系统特判
@@ -58,7 +58,7 @@ public:
 
     void Initialize() ; // todo 直接去 B+树 对象中判 size 需要时再写
 
-    bool check_priority( user &c_user , user &u_user ) ;
+    bool check_priority( string &c_user_name , user &u_user ) ;
 
     bool check_login( string &c_user_name ) ;
 

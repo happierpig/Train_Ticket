@@ -57,9 +57,10 @@ my_system::my_system() : user_tree(string(USER_FILE)) , train_tree(string(TRAIN_
 
 }
 
-bool my_system::check_priority(user &c_user, user &u_user)
+bool my_system::check_priority(string &c_user_name, user &u_user)
 {
-    if ( c_user.privilege > u_user.privilege || c_user == u_user ) return true ;
+    string temp_name(u_user.user_name) ;
+    if ( log_in_user[c_user_name] > u_user.privilege || c_user_name == temp_name ) return true ;
     return false ;
 }
 
@@ -150,7 +151,7 @@ void my_system::add_user()
 {
     para temp_para(command_stream) ;
     user temp_user(temp_para) ;
-    if ( !user_tree.empty() && (!check_login(temp_para.c) || !check_priority(log_in_user[temp_para.c],temp_user) || !no_repeated_user(temp_user)) ){ fail() ; return ; }
+    if ( !user_tree.empty() && (!check_login(temp_para.c) || !check_priority(temp_para.c,temp_user) || !no_repeated_user(temp_user)) ){ fail() ; return ; }
     if ( user_tree.empty() ) temp_user.privilege = 10 ;
     IndexKey user_key(temp_para.u) ;
     user_tree.insert(user_key,temp_user) ;
@@ -165,7 +166,7 @@ void my_system::login()
     vector<user> ans_vec ;
     user_tree.find(user_key,ans_vec) ;
     if ( ans_vec.empty() || !ans_vec[0].right_password(temp_para.p) ) { fail(); return ; }
-    log_in_user[temp_para.u] = ans_vec[0] ;
+    log_in_user[temp_para.u] = ans_vec[0].privilege ;
     success() ;
 }
 
@@ -184,7 +185,7 @@ void my_system::query_profile()
     IndexKey user_key(temp_para.u) ;
     vector<user> ans_vec ;
     user_tree.find(user_key,ans_vec) ;
-    if ( ans_vec.empty() || !check_priority(log_in_user[temp_para.c],ans_vec[0]) ) { fail(); return ; }
+    if ( ans_vec.empty() || !check_priority(temp_para.c,ans_vec[0]) ) { fail(); return ; }
     ans_vec[0].print_user() ;
 }
 
@@ -195,7 +196,7 @@ void my_system::modify_profile() // todo 用 string -> int 存 用户名 -> prio
     IndexKey user_key(temp_para.u) ;
     vector<user> ans_vec ;
     user_tree.find(user_key,ans_vec) ;
-    if ( ans_vec.empty() || !check_priority(log_in_user[temp_para.c],ans_vec[0]) ) { fail(); return ; }
+    if ( ans_vec.empty() || !check_priority(temp_para.c,ans_vec[0]) ) { fail(); return ; }
     stringstream change_stream ;
     if ( !temp_para.p.empty() )
     { change_stream << temp_para.p ; change_stream >> ans_vec[0].password ; change_stream.str("") ; change_stream.clear() ; }
@@ -205,9 +206,9 @@ void my_system::modify_profile() // todo 用 string -> int 存 用户名 -> prio
     { change_stream << temp_para.m ; change_stream >> ans_vec[0].mailAddr ; change_stream.str("") ; change_stream.clear() ; }
     if ( !temp_para.g.empty() )
     { change_stream << temp_para.g ; change_stream >> ans_vec[0].privilege ; change_stream.str("") ; change_stream.clear() ; }
-    if ( ans_vec[0].privilege >= log_in_user[temp_para.c].privilege && !temp_para.g.empty() ) { fail(); return ; }
+    if ( ans_vec[0].privilege >= log_in_user[temp_para.c] && !temp_para.g.empty() ) { fail(); return ; }
     if ( check_login(temp_para.u) ){
-        log_in_user[temp_para.u] = ans_vec[0] ;
+        log_in_user[temp_para.u] = ans_vec[0].privilege ;
     }
     user_update(ans_vec[0]) ;
     ans_vec[0].print_user() ;
