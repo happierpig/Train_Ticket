@@ -43,7 +43,7 @@ class my_system
 {
 private:
     //map<user,int> log_in_user ;
-    unordered_map<string,int> log_in_user ; // todo 考虑 unordered_map<string,int> log_in_user 前存用户ID 后存 priority
+    map<string,int> log_in_user ; // todo 考虑 unordered_map<string,int> log_in_user 前存用户ID 后存 priority
     stringstream command_stream ;
     BPlusTree<IndexKey,user> user_tree ;
     BPlusTree<IndexKey,train,300,6,31> train_tree ;
