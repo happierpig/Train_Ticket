@@ -49,6 +49,7 @@ private:
             tmp->before->after = tmp->after;
             tmp->after->before = tmp->before;
             theDisk->assistantMap.erase(tmp->position);
+            --dataSize;
             delete tmp;
         }
         Node * push_front(int _pos,const T & _data){
@@ -56,7 +57,7 @@ private:
             tmp->after->before = tmp;
             head->after = tmp;
             ++dataSize;
-            if(dataSize == capacity) pop_back();
+            if(dataSize >= capacity) pop_back();
             return tmp;
         }
     public:
