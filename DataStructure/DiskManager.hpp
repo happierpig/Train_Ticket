@@ -46,7 +46,7 @@ private:
         }
         void pop_back(){
             Node * tmp = tail->before;
-            if(tmp->isWriten) this->write_back(tmp->position,tmp->data);
+            this->write_back(tmp->position,tmp->data);
             tmp->before->after = tmp->after;
             tmp->after->before = tmp->before;
             theDisk->assistantMap.erase(tmp->position);
@@ -72,7 +72,7 @@ private:
             theDisk->file.open(theDisk->fileName,ios::in | ios::out | ios::binary);
             while(tmp != nullptr){
                 if(tmp->position != -1){
-                    if(tmp->isWriten) this->write_back(tmp->position,tmp->data);
+                    this->write_back(tmp->position,tmp->data);
                 }
                 Node * tmpp = tmp;
                 tmp = tmp->after;
