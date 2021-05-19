@@ -27,9 +27,10 @@ private:
             Node * after;
             T * data;
             int position;
+            bool isWriten = false;
             Node() = delete;
-            Node(Node * _bef,Node * _aft,const T & _data,int _pos):before(_bef),after(_aft),data(new T(_data)),position(_pos){}
-            Node(Node * _bef,Node * _aft):before(_bef),after(_aft),data(nullptr),position(-1){}
+            Node(Node * _bef,Node * _aft,const T & _data,int _pos):before(_bef),after(_aft),data(new T(_data)),position(_pos),isWriten(false){}
+            Node(Node * _bef,Node * _aft):before(_bef),after(_aft),data(nullptr),position(-1),isWriten(false){}
             ~Node(){
                 delete data;
             }
@@ -45,7 +46,7 @@ private:
         }
         void pop_back(){
             Node * tmp = tail->before;
-            this->write_back(tmp->position,tmp->data);
+            if(tmp->isWriten) this->write_back(tmp->position,tmp->data);
             tmp->before->after = tmp->after;
             tmp->after->before = tmp->before;
             theDisk->assistantMap.erase(tmp->position);
@@ -57,7 +58,7 @@ private:
             tmp->after->before = tmp;
             head->after = tmp;
             ++dataSize;
-            if(dataSize >= capacity) pop_back();
+            if(dataSize == capacity) pop_back();
             return tmp;
         }
     public:
@@ -71,7 +72,7 @@ private:
             theDisk->file.open(theDisk->fileName,ios::in | ios::out | ios::binary);
             while(tmp != nullptr){
                 if(tmp->position != -1){
-                    this->write_back(tmp->position,tmp->data);
+                    if(tmp->isWriten) this->write_back(tmp->position,tmp->data);
                 }
                 Node * tmpp = tmp;
                 tmp = tmp->after;
@@ -82,6 +83,7 @@ private:
             return this->push_front(_pos,_data);
         }
         void update(Node * _target){
+            _target->isWriten = true;
             if(head->after == _target) return;
             _target->before->after = _target->after;
             _target->after->before = _target->before;
