@@ -45,9 +45,9 @@ private:
     //map<user,int> log_in_user ;
     map<string,int> log_in_user ; // todo 考虑 unordered_map<string,int> log_in_user 前存用户ID 后存 priority
     stringstream command_stream ;
-    BPlusTree<IndexKey,user,200,150,31> user_tree ;
-    BPlusTree<IndexKey,train,200,6,7> train_tree ;
-    BPlusTree<IndexKey,ticket_deal,200,150,31> user_deal_tree ; // todo 修改参数信息丢失
+    BPlusTree<IndexKey,user> user_tree ;
+    BPlusTree<IndexKey,train,200,6,17> train_tree ;
+    BPlusTree<IndexKey,ticket_deal> user_deal_tree ; // todo 修改参数信息丢失
     BPlusTree<IndexKey,IndexKey> location_train_tree ;
     BPlusTree<IndexKey,ticket_deal> waiting_tree ;
     // bool first_create = true ; // 第一次打开系统特判
