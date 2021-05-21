@@ -52,9 +52,29 @@ void ride::ride_modify( train &temp_train , int temp_location_1 , int temp_locat
 
 
 my_system::my_system() : user_tree(string(USER_FILE)) , train_tree(string(TRAIN_FILE)) , user_deal_tree(string(DEAL_FILE)) ,
-                         location_train_tree(string(LOCATION_FILE)) , waiting_tree(string(WAITING_LIST_FILE)) // 委托构造所有的树
+                         location_train_tree(string(LOCATION_FILE)) , waiting_tree(string(WAITING_LIST_FILE)) , real_train_file(REAL_TRAIN_FILE,ios::in|ios::out|ios::binary) // 委托构造所有的树
 {
+    if ( user_tree.size() == 0 ){
+        ofstream temp_file(REAL_TRAIN_FILE,ios::binary) ;
+        temp_file.close() ;
+        real_train_file.clear() ;
+        real_train_file.open(REAL_TRAIN_FILE,ios::in|ios::out|ios::binary) ;
+    }
+}
 
+int my_system::train_insert( train &temp_train ) // todo 不知道要不要修补文件 clear
+{
+    real_train_file.seekp(0,ios::end) ;
+    int temp_pos = real_train_file.tellp() ;
+    real_train_file.write(reinterpret_cast<char*>(&temp_train),sizeof(train)) ;
+    return temp_pos ;
+}
+
+void my_system::read_train( int train_pos , train &temp_train )
+{
+    real_train_file.seekg(train_pos,ios::beg) ;
+    real_train_file.read(reinterpret_cast<char*>(&temp_train),sizeof(train)) ;
+    real_train_file.clear() ;
 }
 
 bool my_system::check_priority(string &c_user_name, user &u_user)
@@ -86,11 +106,13 @@ void my_system::user_update(user &u_user)
     user_tree.insert(user_key,u_user) ;
 }
 
-void my_system::train_update(train &t_train)
+void my_system::train_update( int train_pos , train &t_train )
 {
-    IndexKey train_key(t_train) ;
-    train_tree.erase(train_key,t_train) ;
-    train_tree.insert(train_key,t_train) ;
+//    IndexKey train_key(t_train) ;
+//    train_tree.erase(train_key,t_train) ;
+//    train_tree.insert(train_key,t_train) ;
+    real_train_file.seekp(train_pos,ios::beg) ;
+    real_train_file.write(reinterpret_cast<char*>(&t_train),sizeof(train)) ;
 }
 
 void my_system::deal_update(ticket_deal &t_deal)
@@ -189,10 +211,10 @@ void my_system::query_profile()
     ans_vec[0].print_user() ;
 }
 
-void my_system::modify_profile() // todo 用 string -> int 存 用户名 -> priority
+void my_system::modify_profile()
 {
     para temp_para(command_stream) ;
-    if ( !check_login(temp_para.c) ) { fail(); return ; } // todo -g 参数
+    if ( !check_login(temp_para.c) ) { fail(); return ; }
     IndexKey user_key(temp_para.u) ;
     vector<user> ans_vec ;
     user_tree.find(user_key,ans_vec) ;
@@ -218,31 +240,35 @@ void my_system::add_train()
 {
     para temp_para(command_stream) ;
     IndexKey train_key(temp_para.i) ;
-    vector<train> ans_vec ;
+    vector<int> ans_vec ;
     train_tree.find(train_key,ans_vec) ;
     if ( !ans_vec.empty() ) { fail() ; return ; }
     train temp_train(temp_para) ;
-    train_tree.insert(train_key,temp_train) ;
+    train_tree.insert(train_key, train_insert(temp_train)) ; // key -> train_pos
     success() ;
 }
 
-void my_system::release_train()
+void my_system::release_train() // todo 将 location_train_key -> int
 {
     para temp_para(command_stream) ;
     IndexKey train_key(temp_para.i) ;
-    vector<train> ans_vec ;
+    vector<int> ans_vec ;
     train_tree.find(train_key,ans_vec) ;
-    if ( ans_vec.empty() || ans_vec[0].is_released() ) { fail() ; return ; }
-    ans_vec[0].release_train() ; // 修改成 release 状态
-    for ( int i = 1 ; i <= ans_vec[0].station_num ; i++ ){
-        string temp_location(ans_vec[0].all_station[i]) ;
+    if ( ans_vec.empty() ) { fail() ; return ; }
+    train temp_train ;
+    read_train(ans_vec[0],temp_train) ;
+    if ( temp_train.is_released() ){ fail() ; return ; }
+    temp_train.release_train() ; // 修改成 release 状态
+    for ( int i = 1 ; i <= temp_train.station_num ; i++ ){
+        string temp_location(temp_train.all_station[i]) ;
         IndexKey location_key(temp_location) ;
-        location_train_tree.insert(location_key,train_key) ;
+        location_train_tree.insert(location_key,ans_vec[0]) ;
     }
-    if ( !train_tree.erase(train_key,ans_vec[0]) ){
+//    if ( !train_tree.erase(train_key,ans_vec[0]) ){
 //        cerr << "release erase fail" << endl ;
-    } ;
-    train_tree.insert(train_key,ans_vec[0]) ;
+//    } ;
+//    train_tree.insert(train_key,ans_vec[0]) ;
+    train_update(ans_vec[0],temp_train) ;
     success() ;
 }
 
@@ -250,45 +276,51 @@ void my_system::query_train()
 {
     para temp_para(command_stream) ;
     IndexKey train_key(temp_para.i) ;
-    vector<train> ans_vec ;
+    vector<int> ans_vec ;
     train_tree.find(train_key,ans_vec) ;
     date temp_date(temp_para.d) ;
-    if ( ans_vec.empty() || !ans_vec[0].in_sale(temp_date,1) ) { fail() ; return ; }
-    ans_vec[0].print_train(date(temp_date)) ;
+    train temp_train ;
+    if ( ans_vec.empty() ){ fail() ; return ; }
+    read_train(ans_vec[0],temp_train) ;
+    if ( !temp_train.in_sale(temp_date,1) ) { fail() ; return ; }
+    temp_train.print_train(date(temp_date)) ;
 }
 
 void my_system::delete_train()
 {
     para temp_para(command_stream) ;
     IndexKey train_key(temp_para.i) ;
-    vector<train> ans_vec ;
+    vector<int> ans_vec ;
     train_tree.find(train_key,ans_vec) ;
-    if ( ans_vec.empty() || ans_vec[0].is_released() ) { fail() ; return ; }
-    train_tree.erase(train_key,ans_vec[0]) ; // todo 没有一次删完这种操作？
+    if ( ans_vec.empty() ) { fail() ; return ; }
+    train temp_train ;
+    read_train(ans_vec[0],temp_train) ;
+    if ( temp_train.is_released() ) { fail() ; return ; }
+    train_tree.erase(train_key,ans_vec[0]) ;
     success() ;
 }
 
 
-void my_system::make_ride( string &from_location , string &to_location , vector<ride> &ans_vec , vector<IndexKey> &all_train_key , date purchase_day )
+void my_system::make_ride( string &from_location , string &to_location , vector<ride> &ans_vec , vector<int> &all_train_key , date purchase_day ) // todo 直接查车
 {
-    vector<train> train_vec ;
+//    vector<train> train_vec ;
+    train temp_train ;
     for ( int i = 0 ; i < all_train_key.size() ; i++ ){
-        train_vec.clear() ;
-        train_tree.find(all_train_key[i],train_vec) ;
-        int int_location_1 = train_vec[0].get_location(from_location) , int_location_2 = train_vec[0].get_location(to_location) ;
+        read_train(all_train_key[i],temp_train) ;
+        int int_location_1 = temp_train.get_location(from_location) , int_location_2 = temp_train.get_location(to_location) ;
         if ( int_location_1 >= int_location_2 ) continue ;
-        if ( !train_vec[0].in_sale(purchase_day,int_location_1) ) continue ;
-        ride temp_ride(train_vec[0],int_location_1,int_location_2,purchase_day) ;
+        if ( !temp_train.in_sale(purchase_day,int_location_1) ) continue ;
+        ride temp_ride(temp_train,int_location_1,int_location_2,purchase_day) ;
         ans_vec.push_back(temp_ride) ;
     }
 }
 
-void my_system::query_ticket() // todo 在找 train_key 的时候就排除不重合车辆 query_ticket too slow
+void my_system::query_ticket() // todo 将所有 train_key 换成 pos
 {
     para temp_para(command_stream) ;
     IndexKey from_location_key(temp_para.s) , to_location_key(temp_para.t) ;
-    vector<train> from_train , to_train , temp_vec ;
-    vector<IndexKey> from_train_key , to_train_key , all_train_key ;
+//    vector<train> from_train , to_train , temp_vec ;
+    vector<int> from_train_key , to_train_key , all_train_key ;
     date purchase_day(temp_para.d) ; // todo  当天的最后一刻在 sale_begin 之后 ， 当天的第一刻在 sale_begin 之前
     location_train_tree.find(from_location_key,from_train_key) ;
     location_train_tree.find(to_location_key,to_train_key) ; // todo 去除所有非重复 Key
@@ -316,12 +348,13 @@ void my_system::query_ticket() // todo 在找 train_key 的时候就排除不重
     }
 }
 
-void my_system::query_transfer() // todo -g 参数忽略可以相等
+void my_system::query_transfer()
 {
     para temp_para(command_stream) ;
     IndexKey from_location_key(temp_para.s) ;
-    vector<train> train_vec_1 , train_vec_2 ;
-    vector<IndexKey> train_key_1 , train_key_2 ;
+//    vector<train> train_vec_1 , train_vec_2 ;
+    train temp_train_1 , temp_train_2 ;
+    vector<int> train_key_1 , train_key_2 ;
     ride ans_ride_1 , ans_ride_2 , temp_ride_1 , temp_ride_2 ;
     int ans_cost = MAX_MONEY_COST ; // 取小值
     date ans_purchase_1 , ans_purchase_2 ;
@@ -330,33 +363,34 @@ void my_system::query_transfer() // todo -g 参数忽略可以相等
     date purchase_day(temp_para.d) ;
     string mid_location ;
     for ( int i = 0 ; i < train_key_1.size() ; i++ ){
-        train_vec_1.clear() ;
-        train_tree.find(train_key_1[i],train_vec_1) ;
-        int start_point = train_vec_1[0].get_location(temp_para.s) ;
-        if ( !train_vec_1[0].in_sale(purchase_day,start_point) ) continue ; // todo 第一辆车判日期
-        purchase_day.get_other_time(train_vec_1[0].all_set_off[start_point]) ;
-        for ( int j = start_point + 1 ; j <= train_vec_1[0].station_num ; j++ ){
-            mid_location = train_vec_1[0].all_station[j] ;
+//        train_vec_1.clear() ;
+//        train_tree.find(train_key_1[i],train_vec_1) ;
+        read_train(train_key_1[i],temp_train_1) ;
+        int start_point = temp_train_1.get_location(temp_para.s) ;
+        if ( !temp_train_1.in_sale(purchase_day,start_point) ) continue ; // todo 第一辆车判日期
+        purchase_day.get_other_time(temp_train_1.all_set_off[start_point]) ;
+        for ( int j = start_point + 1 ; j <= temp_train_1.station_num ; j++ ){
+            mid_location = temp_train_1.all_station[j] ;
             int first_mid_point = j ; // 第一辆车下车位置
             IndexKey mid_location_key(mid_location) ;
             train_key_2.clear() ;
             location_train_tree.find(mid_location_key,train_key_2) ;
             for ( int k = 0 ; k < train_key_2.size() ; k++ ){ // todo 注意隔天发车和非发车日问题
-                train_vec_2.clear() ;
                 if ( train_key_2[k] == train_key_1[i] ) continue ; // 非同一辆车
-                train_tree.find(train_key_2[k],train_vec_2) ;
-                int second_mid_point = train_vec_2[0].get_location(mid_location) , end_point = train_vec_2[0].get_location(temp_para.t) ;
+//                train_tree.find(train_key_2[k],train_vec_2) ;
+                read_train(train_key_2[k],temp_train_2) ;
+                int second_mid_point = temp_train_2.get_location(mid_location) , end_point = temp_train_2.get_location(temp_para.t) ;
                 if ( second_mid_point >= end_point ){
                     continue ; // 不到达目的地
                 }
                 // 判时间
-                date mid_arrive_in_day = purchase_day + train_vec_1[0].get_time(start_point,first_mid_point) ;
+                date mid_arrive_in_day = purchase_day + temp_train_1.get_time(start_point,first_mid_point) ;
                 date mid_set_off_day = mid_arrive_in_day ;
-                if ( !train_vec_2[0].can_take_in_time(mid_set_off_day,second_mid_point ) ) { // todo 传引用变成出发时间
+                if ( !temp_train_2.can_take_in_time(mid_set_off_day,second_mid_point ) ) { // todo 传引用变成出发时间
                     continue ;
                 }
-                temp_ride_1.ride_modify(train_vec_1[0],start_point,first_mid_point,purchase_day) ;
-                temp_ride_2.ride_modify(train_vec_2[0],second_mid_point,end_point,mid_set_off_day) ;
+                temp_ride_1.ride_modify(temp_train_1,start_point,first_mid_point,purchase_day) ;
+                temp_ride_2.ride_modify(temp_train_2,second_mid_point,end_point,mid_set_off_day) ;
                 if ( temp_para.p != "cost" ){
                     int temp_ans = mid_set_off_day - purchase_day + temp_ride_2.time_cost ;
                     if ( temp_ans < ans_cost || ( temp_ans == ans_cost && temp_ride_1.time_cost < ans_ride_1.time_cost ) ){
@@ -385,19 +419,21 @@ void my_system::buy_ticket()
     para temp_para(command_stream) ;
     if ( !check_login(temp_para.u) ) { fail() ; return ; }
     IndexKey train_key(temp_para.i) , user_key(temp_para.u) ;
-    vector<train> ans_vec  ; vector<user> user_vec ;
+    vector<int> ans_vec  ; vector<user> user_vec ;
+    train temp_train ;
     train_tree.find(train_key,ans_vec) ;
     user_tree.find(user_key,user_vec) ;
     date purchase_day(temp_para.d) ; // todo 将 location 计算一步到位
     if ( ans_vec.empty() ) { fail("no such train") ; return ; }
-    int location_1 = ans_vec[0].get_location(temp_para.f) , location_2 = ans_vec[0].get_location(temp_para.t) ;
-    if ( !ans_vec[0].is_released() || location_1 == -1 || location_2 == -1 || location_1 >= location_2 || !ans_vec[0].in_sale(purchase_day,location_1) ) { fail("invalid train") ; return ; } // todo Mingwin 环境下会出现错误
+    read_train(ans_vec[0],temp_train) ;
+    int location_1 = temp_train.get_location(temp_para.f) , location_2 = temp_train.get_location(temp_para.t) ;
+    if ( !temp_train.is_released() || location_1 == -1 || location_2 == -1 || location_1 >= location_2 || !temp_train.in_sale(purchase_day,location_1) ) { fail("invalid train") ; return ; } // todo Mingwin 环境下会出现错误
     ticket_deal temp_deal(temp_para) ;
-    int max_available_tickets = ans_vec[0].get_max_available_ticket(purchase_day,location_1,location_2) ;
-    if ( temp_deal.ticket_num > ans_vec[0].seat_num || ( max_available_tickets < temp_deal.ticket_num && temp_para.q != "true" ) ) { fail() ; return ; }
-    temp_deal.ticket_modify(user_vec[0],ans_vec[0],location_1,location_2,purchase_day) ;
+    int max_available_tickets = temp_train.get_max_available_ticket(purchase_day,location_1,location_2) ;
+    if ( temp_deal.ticket_num > temp_train.seat_num || ( max_available_tickets < temp_deal.ticket_num && temp_para.q != "true" ) ) { fail() ; return ; }
+    temp_deal.ticket_modify(user_vec[0],temp_train,location_1,location_2,purchase_day) ;
     if ( max_available_tickets >= temp_deal.ticket_num ){
-        ans_vec[0].ticket_decrease(purchase_day,location_1,location_2,temp_deal.ticket_num) ;
+        temp_train.ticket_decrease(purchase_day,location_1,location_2,temp_deal.ticket_num) ;
         temp_deal.deal_status = succeed ;
         cout << ( long long ) temp_deal.price * ( long long ) temp_deal.ticket_num << endl ;
     }else{
@@ -407,43 +443,11 @@ void my_system::buy_ticket()
         waiting_tree.insert(train_key,temp_deal) ;
     }
     user_vec[0].change_deal() ;
-    ans_vec[0].change_waiting_length(1) ;
+    temp_train.change_waiting_length(1) ;
     user_update(user_vec[0]) ;
-    train_update(ans_vec[0]) ;
+    train_update(ans_vec[0],temp_train) ;
     temp_deal.isWaiting = false ;
     user_deal_tree.insert(user_key,temp_deal) ;
-
-//    if ( ans_vec.empty() || !ans_vec[0].is_released() || ans_vec[0].get_location(temp_para.f) == -1 || ans_vec[0].get_location(temp_para.t) == -1 || !ans_vec[0].in_sale(purchase_day,ans_vec[0].get_location(temp_para.f)) )
-//        { fail() ; return ; } // todo 将 empty 单独拿出来判断
-//    ticket_deal temp_deal(temp_para) ;
-//    int location_1 = ans_vec[0].get_location(temp_para.f) , location_2 = ans_vec[0].get_location(temp_para.t) ;
-//    if ( location_1 >= location_2 ) { fail() ; return ; } // 反向跑
-//    int available_ticket_num = ans_vec[0].get_max_available_ticket(purchase_day,location_1,location_2) ; // 最大购买数
-//    temp_deal.departure_time.get_other_time(ans_vec[0].all_set_off[location_1]) ; // todo 将 temp_deal 和 &train 一起修补 deal 信息
-//    temp_deal.arrival_time = temp_deal.departure_time + ( ans_vec[0].get_time(location_1,location_2) ) ;
-//    temp_deal.deal_sequence = user_vec[0].deal_sum + 1 ;
-//    temp_deal.deal_priority = ans_vec[0].waiting_length + 1 ; // todo waiting_length 无论如何都 +1 ?
-//    temp_deal.price = ans_vec[0].get_price(location_1,location_2) ;
-//    if ( temp_deal.ticket_num > ans_vec[0].seat_num || (available_ticket_num < temp_deal.ticket_num && temp_para.q != "true") ){ fail() ; return ; } // 不愿意等 或 购买过多
-//    if ( available_ticket_num >= temp_deal.ticket_num ){
-//        ans_vec[0].ticket_decrease(purchase_day,location_1,location_2,temp_deal.ticket_num) ;
-//        temp_deal.deal_status = succeed ;
-//        user_vec[0].change_deal() ;
-//        ans_vec[0].change_waiting_length(1) ;
-//        deal_update(temp_deal) ; // todo deal_update 改为 insert
-//        train_update(ans_vec[0]) ;
-//        user_update(user_vec[0]) ;
-//        cout << temp_deal.price * temp_deal.ticket_num << endl ;
-//    }else{
-//        temp_deal.deal_status = pending ;
-//        user_vec[0].change_deal() ;
-//        ans_vec[0].change_waiting_length(1) ;
-//        deal_update(temp_deal) ; // todo deal_update 改为 insert
-//        user_update(user_vec[0]) ;
-//        train_update(ans_vec[0]) ; // todo 不需要 waiting_length 这个东西
-//        waiting_update(temp_deal) ; // todo waiting_update 改为 insert
-//        cout << "queue" << endl ;
-//    }
 #ifdef my_debug
 
     if ( !stop_core && temp_para.i == "LeavesofGrass" && ( temp_para.d == "06-18" || temp_para.d == "06-19" ) ){
@@ -480,7 +484,7 @@ void my_system::refund_ticket() // todo line 265 refund 失败 finish
         change_stream << temp_para.n ;
         change_stream >> target_deal ;
     }
-    IndexKey user_key(temp_para.u) ; // todo 不可以 refund 已经 refund 的内容
+    IndexKey user_key(temp_para.u) ;
     vector<ticket_deal> ans_vec , waiting_vec ;
     user_deal_tree.find(user_key,ans_vec) ;
     sort(ans_vec.begin(),ans_vec.end(),less<ticket_deal>()) ;
@@ -497,28 +501,30 @@ void my_system::refund_ticket() // todo line 265 refund 失败 finish
         success() ;
         return ;
     }
-    vector<train> train_vec ;
+    vector<int> train_vec ;
     train_tree.find(train_key,train_vec) ;
-    train_vec[0].ticket_increase(temp_deal.departure_time,train_vec[0].get_location(from_location),train_vec[0].get_location(to_location),temp_deal.ticket_num) ; // 把车票还回去
+    train temp_train ;
+    read_train(train_vec[0],temp_train) ;
+    temp_train.ticket_increase(temp_deal.departure_time,temp_train.get_location(from_location),temp_train.get_location(to_location),temp_deal.ticket_num) ; // 把车票还回去
     waiting_tree.find(train_key,waiting_vec) ;
     sort(waiting_vec.begin(),waiting_vec.end(),less<ticket_deal>()) ;
     for ( int i = 0 ; i < waiting_vec.size() ; i++ ){ // todo 要把 waiting_vec 排序来比较先后 ?
         ticket_deal waiting_deal = waiting_vec[i] ;
         from_location = waiting_vec[i].from_location ;
         to_location = waiting_vec[i].to_location ;
-        int location_1 = train_vec[0].get_location(from_location) , location_2 = train_vec[0].get_location(to_location) ; // todo 判当天票
-        int available_tickets = train_vec[0].get_max_available_ticket(waiting_deal.departure_time,location_1,location_2) ;
+        int location_1 = temp_train.get_location(from_location) , location_2 = temp_train.get_location(to_location) ; // todo 判当天票
+        int available_tickets = temp_train.get_max_available_ticket(waiting_deal.departure_time,location_1,location_2) ;
         if ( available_tickets >= waiting_deal.ticket_num ){
-            train_vec[0].ticket_decrease(waiting_deal.departure_time,location_1,location_2,waiting_deal.ticket_num) ; // 把区间票数耗光
+            temp_train.ticket_decrease(waiting_deal.departure_time,location_1,location_2,waiting_deal.ticket_num) ; // 把区间票数耗光
             waiting_tree.erase(train_key,waiting_deal) ; // 删掉等待队列内容
             waiting_deal.deal_status = succeed ;
             waiting_deal.isWaiting = false ;
             deal_update(waiting_deal) ;
         }
     }
-    train_update(train_vec[0]) ; // 修改票数信息
+    train_update(train_vec[0],temp_train) ; // 修改票数信息
     temp_deal.deal_status = refunded ;
-    deal_update(temp_deal) ; // todo refund 的顺序按照交易瞬间进行
+    deal_update(temp_deal) ;
     success() ;
 }
 
@@ -537,6 +543,8 @@ void my_system::clean()
     log_in_user.clear() ;
     success() ;
 }
+
+
 
 
 

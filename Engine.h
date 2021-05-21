@@ -33,23 +33,22 @@ public:
 
     void ride_modify( train &temp_train , int temp_location_1 , int temp_location_2 , date purchase_day ) ;
 
-    // todo 用 ride 实现 print_travel
-
-    // todo 用 train 来 构造 ride
-
 };
 
 class my_system
 {
 private:
     //map<user,int> log_in_user ;
-    map<string,int> log_in_user ; // todo 考虑 unordered_map<string,int> log_in_user 前存用户ID 后存 priority
+    unordered_map<string,int> log_in_user ;
     stringstream command_stream ;
     BPlusTree<IndexKey,user> user_tree ;
-    BPlusTree<IndexKey,train,200,6,131> train_tree ;
-    BPlusTree<IndexKey,ticket_deal> user_deal_tree ; // todo 修改参数信息丢失
-    BPlusTree<IndexKey,IndexKey> location_train_tree ;
+    BPlusTree<IndexKey,int> train_tree ; // todo 存 int -> 节点 pos
+    BPlusTree<IndexKey,ticket_deal,200,400> user_deal_tree ;
+    BPlusTree<IndexKey,int> location_train_tree ; // todo 存 IndexKey -> int (直接找车)
     BPlusTree<IndexKey,ticket_deal> waiting_tree ;
+
+    fstream real_train_file ;
+
     // bool first_create = true ; // 第一次打开系统特判
 
 public:
@@ -57,6 +56,15 @@ public:
     my_system() ;
 
     void Initialize() ; // todo 直接去 B+树 对象中判 size 需要时再写
+
+    // todo 把 train_insert 和 train_update 封装起来
+    // todo int train_insert( train &temp_train )
+    // todo void train_update( int train_pos , train &temp_train )
+    // todo void read_train( int pos , train &temp_train )
+
+    int train_insert( train &temp_train ) ; // todo 返回位置
+
+    void read_train( int train_pos , train &temp_train ) ;
 
     bool check_priority( string &c_user_name , user &u_user ) ;
 
@@ -70,7 +78,7 @@ public:
 
     void user_update( user &u_user ) ;
 
-    void train_update( train &t_train ) ;
+    void train_update( int train_pos , train &t_train ) ;
 
     void deal_update( ticket_deal &t_deal ) ; // 购买或修改状态调用
 
@@ -80,7 +88,7 @@ public:
 
     void process_command( string &all_command ) ;
 
-    void make_ride( string &from_location , string &to_location , vector<ride> &ans_vec , vector<IndexKey> &all_train_key , date purchase_day ) ; // todo 重构
+    void make_ride( string &from_location , string &to_location , vector<ride> &ans_vec , vector<int> &all_train_key , date purchase_day ) ;
 
     void add_user() ;
 

@@ -22,6 +22,7 @@
 #define DEAL_FILE "deal_file"
 #define LOCATION_FILE "location_file"
 #define WAITING_LIST_FILE "waiting_list_file"
+#define REAL_TRAIN_FILE "real_train_file.dat"
 #define MAX_MONEY_COST 2000000000
 
 using namespace std ;
