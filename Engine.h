@@ -42,9 +42,9 @@ private:
     unordered_map<string,int> log_in_user ;
     stringstream command_stream ;
     BPlusTree<IndexKey,user> user_tree ;
-    BPlusTree<IndexKey,int> train_tree ; // todo 存 int -> 节点 pos
-    BPlusTree<IndexKey,ticket_deal,200,400> user_deal_tree ;
-    BPlusTree<IndexKey,int> location_train_tree ; // todo 存 IndexKey -> int (直接找车)
+    BPlusTree<IndexKey,int,300,300> train_tree ; // todo 存 int -> 节点 pos
+    BPlusTree<IndexKey,ticket_deal,300,150> user_deal_tree ;
+    BPlusTree<IndexKey,int,300,300> location_train_tree ; // todo 存 IndexKey -> int (直接找车)
     BPlusTree<IndexKey,ticket_deal> waiting_tree ;
 
     fstream real_train_file ;
