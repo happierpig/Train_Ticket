@@ -83,7 +83,7 @@ private:
             return this->push_front(_pos,_data);
         }
         void update(Node * _target){
-            _target->isWriten = true;
+//            _target->isWriten = true;
             if(head->after == _target) return;
             _target->before->after = _target->after;
             _target->after->before = _target->before;
@@ -200,7 +200,7 @@ public:
     }
     void write(const T * data,int position){
         if(assistantMap.exist(position)){
-            cache.update(assistantMap.find(position));
+            assistantMap.find(position)->isWriten = true;
         }else {
             if (file.fail()) {
                 file.clear();

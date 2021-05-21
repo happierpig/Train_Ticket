@@ -43,7 +43,7 @@ private:
     stringstream command_stream ;
     BPlusTree<IndexKey,user> user_tree ;
     BPlusTree<IndexKey,int,300,300> train_tree ; // todo 存 int -> 节点 pos
-    BPlusTree<IndexKey,ticket_deal,300,150> user_deal_tree ;
+    BPlusTree<IndexKey,ticket_deal> user_deal_tree ;
     BPlusTree<IndexKey,int,300,300> location_train_tree ; // todo 存 IndexKey -> int (直接找车)
     BPlusTree<IndexKey,ticket_deal> waiting_tree ;
 
