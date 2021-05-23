@@ -211,10 +211,11 @@ public:
             file.write(reinterpret_cast<const char *>(data), sizeof(*data));
         }
     }
-    T * read(int index) {
+    T * read(int index,bool mode = false) {
         if(assistantMap.exist(index)){
             typename List::Node * tmp = assistantMap.find(index);
             cache.update(tmp);
+            if(mode) tmp->isWriten = true;
             return tmp->data;
         }else {
             T temp;
@@ -222,6 +223,7 @@ public:
             file.read(reinterpret_cast< char *>(&temp), sizeof(temp));
             typename List::Node * tmp = cache.insert(index,temp);
             assistantMap.insert(index,tmp);
+            if(mode) tmp->isWriten = true;
             return tmp->data;
         }
     }

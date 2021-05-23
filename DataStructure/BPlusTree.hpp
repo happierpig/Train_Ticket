@@ -720,7 +720,7 @@ public:
         leafNode * tmpLeafNode = leafDisk.read(leafPosition);
         tmpLeafNode->eraseAssistant(_key,_data,this,true,true,leafPos,keyPos);
         if(leafPos == -1) throw "update debug #2";
-        leafNode * targetLeafNode = leafDisk.read(leafPos);
+        leafNode * targetLeafNode = leafDisk.read(leafPos,true);
         return targetLeafNode->dataSet[keyPos];
     }
 #ifdef debug
