@@ -76,7 +76,7 @@ public:
 
     void fail( string err_inf = "" ) ; // fail 之后要 return
 
-    void user_update( user &u_user ) ;
+    void user_update( user &u_user ) ; // todo 吧 erase -> insert 换成 update
 
     void train_update( int train_pos , train &t_train ) ;
 

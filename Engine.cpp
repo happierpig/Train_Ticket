@@ -101,9 +101,11 @@ void my_system::fail( string err_inf  ) {
 void my_system::user_update(user &u_user)
 {
     IndexKey user_key(u_user) ;
-    if( !user_tree.erase(user_key,u_user ) ) {}
-//        cerr << "no such user" << endl  ;
-    user_tree.insert(user_key,u_user) ;
+//    if( !user_tree.erase(user_key,u_user ) ) {}
+////        cerr << "no such user" << endl  ;
+//    user_tree.insert(user_key,u_user) ;
+    user &real_user = user_tree.update(user_key,u_user) ;
+    real_user = u_user ; // 调用一次赋值
 }
 
 void my_system::train_update( int train_pos , train &t_train )
@@ -120,8 +122,10 @@ void my_system::deal_update(ticket_deal &t_deal)
     IndexKey user_deal_key ;
     strcpy( user_deal_key.real_key , t_deal.user_name ) ;
     t_deal.modify_waiting(false) ;
-    user_deal_tree.erase(user_deal_key,t_deal) ;
-    user_deal_tree.insert(user_deal_key,t_deal) ;
+//    user_deal_tree.erase(user_deal_key,t_deal) ;
+//    user_deal_tree.insert(user_deal_key,t_deal) ;
+    ticket_deal &real_deal = user_deal_tree.update(user_deal_key,t_deal) ;
+    real_deal = t_deal ;
 }
 
 void my_system::waiting_update(ticket_deal &t_deal)
