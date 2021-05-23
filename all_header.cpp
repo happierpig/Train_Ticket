@@ -26,97 +26,77 @@ void get_split_context( string &input_str , stringstream &temp_stream )
 
 date::date(string &date_str)
 {
-    month = date_str[1] - '0' ;
-    day = (date_str[3] - '0') * 10 + date_str[4] - '0' ;
+    int temp_time = 0 , temp_month = 0 , temp_day = 0 ;
+    temp_month = date_str[1] - '0' ;
+    temp_day = (date_str[3] - '0') * 10 + date_str[4] - '0' ;
+    temp_time += all_month_add_up[temp_month] + ( temp_day - 1 ) * 24 * 60 ;
+    all_time = temp_time ;
 }
 
 date::date(string &date_str, string &time_str) : date(date_str)
 {
-    hour = ( time_str[0] - '0' ) * 10 + time_str[1] - '0' ;
-    minute = ( time_str[3] - '0' ) * 10 + time_str[4] - '0' ;
+    int temp_hour = 0 , temp_minute = 0 ;
+    temp_hour = ( time_str[0] - '0' ) * 10 + time_str[1] - '0' ;
+    temp_minute = ( time_str[3] - '0' ) * 10 + time_str[4] - '0' ;
+    all_time += temp_hour * 60 + temp_minute ;
 }
 
-void date::add_day()
-{
-    if ( ( month == 6 && day == 30 ) || ( month == 7 && day == 31 ) || ( month == 8 && day == 31 ) ){ month++ ; day = 1 ; return ; }
-    day++ ;
-}
+void date::add_day(){ all_time += 1440 ; }
 
-void date::add_hour()
-{
-    if ( hour == 23 ) { add_day() ; hour = 0 ; return ; }
-    hour++ ;
-}
+void date::add_hour(){ all_time += 60 ; }
 
-void date::add_minute()
-{
-    if ( minute == 59 ) { add_hour() ; minute = 0 ; return ; }
-    minute++ ;
-}
+void date::add_minute(){ all_time += 1 ; }
 
 date date::operator+( int interval_time ) {
     date temp = *this ;
-    while ( interval_time >= 1440 ){
-        temp.add_day() ;
-        interval_time -= 1440 ;
-    }
-    while ( interval_time >= 60 ){
-        temp.add_hour() ;
-        interval_time -= 60 ;
-    }
-    while ( interval_time > 0 ){
-        temp.add_minute() ;
-        interval_time -= 1 ;
-    }
+//    while ( interval_time >= 1440 ){
+//        temp.add_day() ;
+//        interval_time -= 1440 ;
+//    }
+//    while ( interval_time >= 60 ){
+//        temp.add_hour() ;
+//        interval_time -= 60 ;
+//    }
+//    while ( interval_time > 0 ){
+//        temp.add_minute() ;
+//        interval_time -= 1 ;
+//    }
+    temp.all_time += interval_time ;
     return temp ;
 }
 
 
-void date::del_day()
-{
-    if ( day == 1 ){
-        if ( month == 7 ){ month = 6 ; day = 30 ; return ; }
-        if ( month == 8 ){ month = 7 ; day = 31 ; return ; }
-        if ( month == 9 ){ month = 8 ; day = 31 ; return ; }
-    }
-    day-- ;
-}
+void date::del_day(){ all_time -= 1440 ; }
 
-void date::del_hour()
-{
-    if ( hour == 0 ){ del_day() ; hour = 23 ; return ; }
-    hour-- ;
-}
+void date::del_hour(){ all_time -= 60 ; }
 
-void date::del_minute()
-{
-    if ( minute == 0 ) { del_hour() ; minute = 59 ; return ; }
-    minute-- ;
-}
+void date::del_minute(){ all_time -= 1 ; }
 
 date date::operator-(int interval_time)
 {
     date temp = *this ;
-    while ( interval_time >= 1440 ){
-        temp.del_day() ;
-        interval_time -= 1440 ;
-    }
-    while ( interval_time >= 60 ){
-        temp.del_hour() ;
-        interval_time -= 60 ;
-    }
-    while ( interval_time > 0 ){
-        temp.del_minute() ;
-        interval_time -= 1 ;
-    }
+//    while ( interval_time >= 1440 ){
+//        temp.del_day() ;
+//        interval_time -= 1440 ;
+//    }
+//    while ( interval_time >= 60 ){
+//        temp.del_hour() ;
+//        interval_time -= 60 ;
+//    }
+//    while ( interval_time > 0 ){
+//        temp.del_minute() ;
+//        interval_time -= 1 ;
+//    }
+    temp.all_time -= interval_time ;
     return temp ;
 }
 
 bool date::operator<(const date &other) const {
-    if ( month != other.month ) return month < other.month ;
-    if ( day != other.day ) return day < other.day ;
-    if ( hour != other.hour ) return hour < other.hour ;
-    return minute < other.minute ;
+//    if ( month != other.month ) return month < other.month ;
+//    if ( day != other.day ) return day < other.day ;
+//    if ( hour != other.hour ) return hour < other.hour ;
+//    return minute < other.minute ;
+    return all_time < other.all_time ;
 }
 
 bool date::operator>(const date &other) const {
@@ -130,59 +110,107 @@ bool date::operator==(const date &other) const {
 }
 
 int date::get_date_index() {
-    int temp_index = 0 ;
-    if ( month == 7 ) temp_index += 30 ;
-    if ( month == 8 ) temp_index += 61 ;
-    temp_index += day ;
+    int temp_index = ( all_time - all_month_add_up[6] ) / ( 24 * 60 ) + 1 ;
+//    if ( month == 7 ) temp_index += 30 ;
+//    if ( month == 8 ) temp_index += 61 ;
+//    temp_index += day ;
     return temp_index ;
 }
 
 bool date::isSameDay(date other_date) {
-    return ( month == other_date.month && day == other_date.day ) ;
+    return ( ( all_time / ( 24 * 60 ) ) == ( other_date.all_time / ( 24 * 60 ) ) ) ;
 }
 
 void date::print_date()
 {
-    if ( month == 0 ){
+    if ( all_time == 0 ){
         cout << "xx-xx xx:xx" ;
         return ;
     }
-    cout << 0 << month << '-' ;
-    if ( day < 10 ) cout << 0 ;
-    cout << day << ' ' ;
-    if ( hour < 10 ) cout << 0 ;
-    cout << hour << ':' ;
-    if ( minute < 10 ) cout << 0 ;
-    cout << minute ;
+    int temp_time = all_time , temp_month = get_month() , temp_day = get_day() , temp_hour = get_hour() , temp_minute = get_minute() ;
+    cout << 0 << temp_month << '-' ;
+    if ( temp_day < 10 ) cout << 0 ;
+    cout << temp_day << ' ' ;
+    if ( temp_hour < 10 ) cout << 0 ;
+    cout << temp_hour << ':' ;
+    if ( temp_minute < 10 ) cout << 0 ;
+    cout << temp_minute ;
 }
 
-void date::get_other_day(date other_date) { month = other_date.month ; day = other_date.day ; }
+void date::get_other_day(date other_date) {
+ //   month = other_date.month ; day = other_date.day ;
+    int other_date_time = (other_date.all_time / ( 24 * 60 )) * ( 24 * 60 ) ;
+    all_time = all_time % ( 24 * 60 ) + other_date_time ;
+}
 
-void date::get_other_time(date other_date) { hour = other_date.hour ; minute = other_date.minute ; }
+void date::get_other_time(date other_date) {
+    //   hour = other_date.hour ; minute = other_date.minute ;
+    int other_date_time = ( other_date.all_time % ( 24 * 60 ) ) ;
+    all_time = ( all_time / ( 24 * 60 ) ) * ( 24 * 60 ) + other_date_time ;
+}
 
 int date::operator-(date other_date) const
 {
-    date temp_date = other_date ;
-    int counter = 0 ;
-    while( temp_date + 1440 < *this || temp_date + 1440 == *this ){
-        temp_date.add_day() ;
-        counter += 1440 ;
-    }
-    while ( temp_date + 60 < *this || temp_date + 60 == *this ){
-        temp_date.add_hour() ;
-        counter += 60 ;
-    }
-    while ( temp_date + 1 < *this || temp_date + 1 == *this ){
-        temp_date.add_minute() ;
-        counter += 1 ;
-    }
-    return counter ;
+//    date temp_date = other_date ;
+//    int counter = 0 ;
+//    while( temp_date + 1440 < *this || temp_date + 1440 == *this ){
+//        temp_date.add_day() ;
+//        counter += 1440 ;
+//    }
+//    while ( temp_date + 60 < *this || temp_date + 60 == *this ){
+//        temp_date.add_hour() ;
+//        counter += 60 ;
+//    }
+//    while ( temp_date + 1 < *this || temp_date + 1 == *this ){
+//        temp_date.add_minute() ;
+//        counter += 1 ;
+//    }
+
+    return all_time - other_date.all_time ;
 }
 
 ostream &operator<<( ostream &os , const date &temp_date )
 {
-    os << '0' << temp_date.month << '-' << temp_date.day << ' ' << temp_date.hour << ':' << temp_date.minute ;
+//    os << '0' << temp_date.month << '-' << temp_date.day << ' ' << temp_date.hour << ':' << temp_date.minute ;
+    os << temp_date.all_time ;
     return os ;
+}
+
+void date::become_last_minute()
+{
+    all_time = (all_time / ( 24 * 60 )) * ( 24 * 60 ) ;
+    all_time += 1439 ;
+}
+
+void date::become_first_minute()
+{
+    all_time = (all_time / ( 24 * 60 )) * (24 * 60 ) ;
+}
+
+int date::get_month()
+{
+    int temp_time = all_time ;
+    for ( int i = 1 ; i < 12 ; i++ ){
+        if ( temp_time >= all_month_add_up[i] && temp_time < all_month_add_up[i+1] ) return i ;
+    }
+    return 12 ;
+}
+
+int date::get_day()
+{
+    int temp_time = all_time , temp_month = get_month() ;
+    temp_time -= all_month_add_up[temp_month] ;
+    return temp_time / ( 60 * 24 ) + 1 ;
+}
+
+int date::get_hour()
+{
+    return ( all_time / 60 ) % 24 ;
+}
+
+int date::get_minute()
+{
+    return ( all_time % 60 ) ;
 }
 
 
@@ -344,8 +372,8 @@ bool train::is_released() { return isReleased ; }
 bool train::in_sale( date purchase_day , int location )
 {
     date temp_date_1 = purchase_day , temp_date_2 = purchase_day ;
-    temp_date_1.hour = 23 ; temp_date_1.minute = 59 ; // 一天的最后一刻搭车
-    temp_date_2.hour = 0 ; temp_date_2.minute = 0 ;  // 一天的第一刻搭车
+    temp_date_1.become_last_minute() ; // 一天的最后一刻搭车
+    temp_date_2.become_first_minute();  // 一天的第一刻搭车
     temp_date_1 = temp_date_1 - all_departure[location] ;
     temp_date_2 = temp_date_2 - all_departure[location] ;
     if ( temp_date_1 < sale_begin  ) return false ;

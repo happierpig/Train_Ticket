@@ -33,18 +33,22 @@ bool isNumber( string temp_str ) ; // 判断数字
 
 void get_split_context( string &input_str , stringstream &temp_stream ) ;
 
+const int all_month_add_up[13] = {0,0,44640,84960,129600,172800,217440,260640,305280,349920,393120,437760,480960}; // 月份前缀和
+
 enum ticket_status{ succeed , pending , refunded };
 
 class train ;
 
 class date
 {
-    friend class train ;
+//    friend class train ;
 private:
-    int month = 0 ; // todo 重构成单 int 来进行操作
-    int day = 0 ;
-    int hour = 0 ;
-    int minute = 0 ;
+//    int month = 0 ; // todo 重构成单 int 来进行操作
+//    int day = 0 ;
+//    int hour = 0 ;
+//    int minute = 0 ;
+
+    int all_time = 0 ; //  01-01 00:00 为 0
 
 public:
 
@@ -65,6 +69,18 @@ public:
     void del_hour() ;
 
     void del_minute() ;
+
+    void become_last_minute() ;
+
+    void become_first_minute() ;
+
+    int get_month() ;
+
+    int get_day() ;
+
+    int get_hour() ;
+
+    int get_minute() ;
 
     date operator+( int interval_time ) ;
 
