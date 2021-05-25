@@ -103,9 +103,18 @@ public:
         return dataSet[index].find(_key)->data;
     }
 
+    Data & operator [](const Key & _key){
+        return this->find(_key);
+    }
+
     void clear(){
         delete [] dataSet;
         dataSet = new LinkList[capacity];
+    }
+
+    int count(const Key & _key){
+        if(exist(_key)) return 1;
+        else return 0;
     }
 };
 #endif //TRAIN_TICKET_HASHMAP_HPP
