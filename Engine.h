@@ -44,8 +44,10 @@ private:
     BPlusTree<IndexKey,user> user_tree ;
     BPlusTree<IndexKey,int,300,300,4373> train_tree ; // todo 存 int -> 节点 pos
     BPlusTree<IndexKey,ticket_deal> user_deal_tree ;
-    BPlusTree<IndexKey,int,300,300,4373> location_train_tree ; // todo 存 IndexKey -> int (直接找车)
-    BPlusTree<IndexKey,ticket_deal> waiting_tree ;
+    BPlusTree<IndexKey,int,300,300,4373> location_train_tree ; // todo 存 IndexKey -> station 类精简数据
+    BPlusTree<pair<IndexKey,date>,ticket_deal> waiting_tree ; // todo  <trainID,date> -> ticket_deal
+
+    // todo waiting_tree 双 key <trainID,date>
 
     fstream real_train_file ;
 
