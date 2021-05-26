@@ -22,6 +22,7 @@
 #define DEAL_FILE "deal_file"
 #define LOCATION_FILE "location_file"
 #define WAITING_LIST_FILE "waiting_list_file"
+#define DAY_TRAIN_FILE "day_train_file"
 #define REAL_TRAIN_FILE "real_train_file.dat"
 #define MAX_MONEY_COST 2000000000
 
@@ -74,6 +75,10 @@ public:
 
     void become_first_minute() ;
 
+    date temp_first_minute() ;
+
+    date temp_last_minute() ;
+
     int get_month() ;
 
     int get_day() ;
@@ -124,6 +129,8 @@ public:
 
 };
 
+// todo 修改所有的赋值
+
 class user
 {
     friend class my_system ;
@@ -135,7 +142,7 @@ private:
     char chinese_name[MAX_STR_LENGTH] = {0} ;
     char mailAddr[MAX_STR_LENGTH] = {0};
     int privilege = 0 ;
-    int deal_sum = 0 ;
+//    int deal_sum = 0 ;
 
 public:
 
@@ -155,10 +162,20 @@ public:
 
     void print_user() ;
 
-    void change_deal() ;
+//    void change_deal() ;
 
     friend ostream &operator<<( ostream &os , const user &temp_user ) ;
 
+};
+
+struct day_train{
+    int seat_num[MAX_STATION_SUM] = {0} ;
+    int get_max_available_ticket( int location_1 , int location_2 ) ;
+    void modify_seat( int location_1 , int location_2 , int ticket_num ) ;
+    day_train &operator=( const day_train &other ) ;
+    bool operator<( const day_train &other ) const ;
+    bool operator==( const day_train &other ) const ;
+    bool operator>( const day_train &other ) const ;
 };
 
 class train
@@ -174,10 +191,10 @@ private:
     int seat_num = 0 ;
     int station_num = 0 ;
     int all_price[MAX_STATION_SUM] = {0}; // 到第 i 站所要的钱 前缀和
-    int all_departure[MAX_STATION_SUM] = {0};
-    int all_arrival[MAX_STATION_SUM] = {0};
-    int all_seat[MAX_DATE][MAX_STATION_SUM] = {0}; // 从哪里出发扣哪里车票
-    int waiting_length = 0 ;
+//    int all_departure[MAX_STATION_SUM] = {0};
+//    int all_arrival[MAX_STATION_SUM] = {0}; // todo 删掉 all_departure all_arrival  all_seat
+//    int all_seat[MAX_DATE][MAX_STATION_SUM] = {0}; // 从哪里出发扣哪里车票
+//    int waiting_length = 0 ;
     date all_set_off[MAX_STATION_SUM] , all_arrive_in[MAX_STATION_SUM] ;
     date sale_begin , sale_end ;
     bool isReleased = false ;
@@ -198,7 +215,7 @@ public:
 
     void release_train() ;
 
-    void change_waiting_length( int i ) ; // +1
+//    void change_waiting_length( int i ) ; // +1
 
     int get_location( string &input_location ) ; // 未找到返回 -1
 
@@ -208,21 +225,25 @@ public:
 
     bool can_take_in_time( date &arrive_in_date , int location ) ;
 
-    void ticket_decrease( date purchase_day , int location_1 , int location_2 , int purchase_ticket ) ; // 消耗 purchase_day 从 location_1 到 location_2 的车票
+//    void ticket_decrease( date purchase_day , int location_1 , int location_2 , int purchase_ticket ) ; // 消耗 purchase_day 从 location_1 到 location_2 的车票
 
-    void ticket_increase( date purchase_day , int location_1 , int location_2 , int purchase_ticket ) ;
+//    void ticket_increase( date purchase_day , int location_1 , int location_2 , int purchase_ticket ) ;
 
-    bool ticket_is_enough( date purchase_day , int location_1 , int location_2 , int purchase_ticket ) ;
+//    bool ticket_is_enough( date purchase_day , int location_1 , int location_2 , int purchase_ticket ) ;
 
     void print_travel( date purchase_day , int location_1 , int location_2 ) ; // purchase_day 出发 从 location_1 -> location_2 的信息 泛型 print
 
-    void print_train( date query_day ) ;
+    void print_train( date query_day ) ; // todo unreleased_train 采用这种方法 print
+
+    void combined_print_train( date query_day , day_train &temp_day_train ) ;
 
     int get_price( int location_1 , int location_2 ) ;
 
     int get_time( int location_1 , int location_2 ) ;
 
-    int get_max_available_ticket( date purchase_day , int location_1 , int location_2 ) ;
+    date get_date_index( int location , date purchase_day ) ;
+
+//    int get_max_available_ticket( date purchase_day , int location_1 , int location_2 ) ;
 
     friend ostream &operator<<( ostream &os , const train &temp_train ) ;
 
@@ -237,6 +258,8 @@ public:
     IndexKey(){} ;
 
     IndexKey( string &input_str ) ;
+
+    IndexKey( const char *input_str ) ;
 
     IndexKey( user &input_user ) ;
 
@@ -266,13 +289,16 @@ private:
     char from_location[MAX_STR_LENGTH] = {0} ;
     char to_location[MAX_STR_LENGTH] = {0} ;
     int price = 0 , ticket_num = 0 ;
-    int deal_sequence = 0 ;  // 用 deal_sum 值
-    int deal_priority = 0 ; // 用 waiting_length 值
-    bool isWaiting = false ;
+    int int_location_1 = 0 , int_location_2 = 0 ;
+//    int deal_sequence = 0 ;  // 用 deal_sum 值
+    int deal_priority = 0 ; // todo 用 deal 总量维护
+//    bool isWaiting = false ;
     date departure_time , arrival_time , train_set_off ; // todo 发车时间
     ticket_status deal_status ;
 
     // todo 添加发车时间
+
+    // todo 添加 int_location_1 int_location_2 不用去查车
 
 public: // todo 写一个 modify( train & , int location_1 , int location_2 , date )
 
@@ -288,13 +314,13 @@ public: // todo 写一个 modify( train & , int location_1 , int location_2 , da
 
     bool operator>( const ticket_deal &other_deal ) const ;
 
-    void ticket_modify( user &temp_user , train &temp_train , int location_1 , int location_2 , date purchase_day ) ;
+    void ticket_modify( train &temp_train , int location_1 , int location_2 , date purchase_day ) ;
 
     void change_status( ticket_status temp_status ) ;
 
-    void modify_waiting( bool need_to_wait ) ;
+//    void modify_waiting( bool need_to_wait ) ;
 
-    void modify_sequence( int user_sequence ) ; // 顾客的第几个 deal
+//    void modify_sequence( int user_sequence ) ; // 顾客的第几个 deal
 
     void modify_priority( int train_priority ) ; // 等待队列的第几个 deal
 
@@ -308,7 +334,7 @@ public: // todo 写一个 modify( train & , int location_1 , int location_2 , da
 
 };
 
-// todo station 类
 // todo day_train 类
+
 
 #endif //TICKETSYSTEM_2021_MAIN_ALL_HEADER_H

@@ -25,13 +25,13 @@ public:
 
     ride(){} ;
 
-    ride( train &temp_train , int temp_location_1 , int temp_location_2 , date purchase_day ) ;
+    ride( train &temp_train , int temp_location_1 , int temp_location_2 , date purchase_day , day_train &temp_day_train ) ;
 
     bool operator<( const ride &other ) const ;
 
     void print_ride() ;
 
-    void ride_modify( train &temp_train , int temp_location_1 , int temp_location_2 , date purchase_day ) ;
+    void ride_modify( train &temp_train , int temp_location_1 , int temp_location_2 , date purchase_day , day_train &temp_day_train ) ;
 
 };
 
@@ -42,12 +42,17 @@ private:
     unordered_map<string,int> log_in_user ;
     stringstream command_stream ;
     BPlusTree<IndexKey,user> user_tree ;
-    BPlusTree<IndexKey,int,300,300,8081> train_tree ; // todo 存 int -> 节点 pos
+    BPlusTree<IndexKey,int,300,300,4373> train_tree ; // todo 存 int -> 节点 pos
     BPlusTree<IndexKey,ticket_deal> user_deal_tree ;
-    BPlusTree<IndexKey,int,300,300,8081> location_train_tree ; // todo 存 IndexKey -> station 类精简数据
+    BPlusTree<IndexKey,pair<int,int>,300,300,4373> location_train_tree ; // todo 存 location -> trainID + location_i 类精简数据
     BPlusTree<pair<IndexKey,date>,ticket_deal> waiting_tree ; // todo  <trainID,date> -> ticket_deal
+    BPlusTree<pair<IndexKey,date>,day_train> day_train_tree ;
+
+    // todo day_train_tree <trainID,date> -> day_train
 
     // todo waiting_tree 双 key <trainID,date>
+
+    // todo location_train_tree <location> -> <train_pos,location_i>
 
     fstream real_train_file ;
 
@@ -82,6 +87,8 @@ public:
 
     void train_update( int train_pos , train &t_train ) ;
 
+    void day_train_update( train &t_train , date temp_date , day_train &t_day_train ) ;
+
     void deal_update( ticket_deal &t_deal ) ; // 购买或修改状态调用
 
     void waiting_update( ticket_deal &t_deal ) ; // 出 queue 或 入 queue 调用
@@ -90,7 +97,7 @@ public:
 
     void process_command( string &all_command ) ;
 
-    void make_ride( string &from_location , string &to_location , vector<ride> &ans_vec , vector<int> &all_train_key , date purchase_day ) ;
+    void make_ride( string &from_location , string &to_location , vector<ride> &ans_vec , vector<pair<int,pair<int,int>>> &all_train_key , date purchase_day ) ;
 
     void add_user() ;
 
@@ -118,7 +125,7 @@ public:
 
     void query_order() ;
 
-    void refund_ticket() ;
+    void refund_ticket() ; // todo 不去查 train
 
     void clean() ;
 
