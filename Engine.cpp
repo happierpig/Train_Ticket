@@ -130,12 +130,12 @@ void my_system::deal_update(ticket_deal &t_deal)
 
 void my_system::waiting_update(ticket_deal &t_deal)
 {
-    IndexKey waiting_deal_key ;
-    strcpy( waiting_deal_key.real_key , t_deal.trainID ) ;
-    t_deal.modify_waiting(true) ;
-    if ( t_deal.deal_status == pending )
-        waiting_tree.insert(waiting_deal_key,t_deal) ;
-    else waiting_tree.erase(waiting_deal_key,t_deal) ;
+//    IndexKey waiting_deal_key ;
+//    strcpy( waiting_deal_key.real_key , t_deal.trainID ) ;
+//    t_deal.modify_waiting(true) ;
+//    if ( t_deal.deal_status == pending )
+//        waiting_tree.insert(waiting_deal_key,t_deal) ;
+//    else waiting_tree.erase(waiting_deal_key,t_deal) ;
 }
 
 void my_system::process_command(string &all_command)
@@ -436,6 +436,8 @@ void my_system::buy_ticket()
     int max_available_tickets = temp_train.get_max_available_ticket(purchase_day,location_1,location_2) ;
     if ( temp_deal.ticket_num > temp_train.seat_num || ( max_available_tickets < temp_deal.ticket_num && temp_para.q != "true" ) ) { fail() ; return ; }
     temp_deal.ticket_modify(user_vec[0],temp_train,location_1,location_2,purchase_day) ;
+    temp_deal.train_set_off =  temp_deal.departure_time - temp_train.all_departure[location_1] ;
+    temp_deal.train_set_off.become_first_minute() ;
     if ( max_available_tickets >= temp_deal.ticket_num ){
         temp_train.ticket_decrease(purchase_day,location_1,location_2,temp_deal.ticket_num) ;
         temp_deal.deal_status = succeed ;
@@ -444,7 +446,7 @@ void my_system::buy_ticket()
         temp_deal.deal_status = pending ;
         temp_deal.isWaiting = true ;
         cout << "queue" << endl ;
-        waiting_tree.insert(train_key,temp_deal) ;
+        waiting_tree.insert({train_key,temp_deal.train_set_off},temp_deal) ;
     }
     user_vec[0].change_deal() ;
     temp_train.change_waiting_length(1) ;
@@ -501,7 +503,7 @@ void my_system::refund_ticket() // todo line 265 refund 失败 finish
         temp_deal.deal_status = refunded ;
         deal_update(temp_deal) ;
         temp_deal.isWaiting = true ; // 从候补队列删除
-        waiting_tree.erase(train_key,temp_deal) ;
+        waiting_tree.erase({train_key,temp_deal.train_set_off},temp_deal) ;
         success() ;
         return ;
     }
@@ -510,7 +512,7 @@ void my_system::refund_ticket() // todo line 265 refund 失败 finish
     train temp_train ;
     read_train(train_vec[0],temp_train) ;
     temp_train.ticket_increase(temp_deal.departure_time,temp_train.get_location(from_location),temp_train.get_location(to_location),temp_deal.ticket_num) ; // 把车票还回去
-    waiting_tree.find(train_key,waiting_vec) ;
+    waiting_tree.find({train_key,temp_deal.train_set_off},waiting_vec) ;
     sort(waiting_vec.begin(),waiting_vec.end(),less<ticket_deal>()) ;
     for ( int i = 0 ; i < waiting_vec.size() ; i++ ){ // todo 要把 waiting_vec 排序来比较先后 ?
         ticket_deal waiting_deal = waiting_vec[i] ;
@@ -520,7 +522,7 @@ void my_system::refund_ticket() // todo line 265 refund 失败 finish
         int available_tickets = temp_train.get_max_available_ticket(waiting_deal.departure_time,location_1,location_2) ;
         if ( available_tickets >= waiting_deal.ticket_num ){
             temp_train.ticket_decrease(waiting_deal.departure_time,location_1,location_2,waiting_deal.ticket_num) ; // 把区间票数耗光
-            waiting_tree.erase(train_key,waiting_deal) ; // 删掉等待队列内容
+            waiting_tree.erase({train_key,temp_deal.train_set_off},waiting_deal) ; // 删掉等待队列内容
             waiting_deal.deal_status = succeed ;
             waiting_deal.isWaiting = false ;
             deal_update(waiting_deal) ;

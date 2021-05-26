@@ -601,6 +601,7 @@ ticket_deal &ticket_deal::operator=(const ticket_deal &other)
     departure_time = other.departure_time ;
     arrival_time = other.arrival_time ;
     deal_status = other.deal_status ;
+    train_set_off = other.train_set_off ;
     return *this ;
 }
 

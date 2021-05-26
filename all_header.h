@@ -269,8 +269,10 @@ private:
     int deal_sequence = 0 ;  // 用 deal_sum 值
     int deal_priority = 0 ; // 用 waiting_length 值
     bool isWaiting = false ;
-    date departure_time , arrival_time ;
+    date departure_time , arrival_time , train_set_off ; // todo 发车时间
     ticket_status deal_status ;
+
+    // todo 添加发车时间
 
 public: // todo 写一个 modify( train & , int location_1 , int location_2 , date )
 
@@ -306,5 +308,7 @@ public: // todo 写一个 modify( train & , int location_1 , int location_2 , da
 
 };
 
+// todo station 类
+// todo day_train 类
 
 #endif //TICKETSYSTEM_2021_MAIN_ALL_HEADER_H
