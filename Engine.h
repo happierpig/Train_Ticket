@@ -44,9 +44,9 @@ private:
     BPlusTree<IndexKey,user> user_tree ;
     BPlusTree<IndexKey,int,300,300,4373> train_tree ; // todo 存 int -> 节点 pos
     BPlusTree<IndexKey,ticket_deal> user_deal_tree ;
-    BPlusTree<IndexKey,pair<int,int>,300,150,4373> location_train_tree ; // todo 存 location -> trainID + location_i 类精简数据
-    BPlusTree<pair<IndexKey,date>,ticket_deal,200,150> waiting_tree ; // todo  <trainID,date> -> ticket_deal
-    BPlusTree<pair<IndexKey,date>,day_train,200,150> day_train_tree ;
+    BPlusTree<IndexKey,pair<int,int>,300,300,4373> location_train_tree ; // todo 存 location -> trainID + location_i 类精简数据
+    BPlusTree<pair<IndexKey,date>,ticket_deal> waiting_tree ; // todo  <trainID,date> -> ticket_deal
+    BPlusTree<pair<IndexKey,date>,day_train> day_train_tree ;
 
     // todo day_train_tree <trainID,date> -> day_train
 
@@ -85,7 +85,7 @@ public:
 
     void user_update( user &u_user ) ; // todo 吧 erase -> insert 换成 update
 
-    void train_update( int train_pos , train &t_train ) ;
+    void train_update( int train_pos  ) ;
 
     void day_train_update( train &t_train , date temp_date , day_train &t_day_train ) ;
 

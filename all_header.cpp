@@ -10,6 +10,16 @@ int get_strip( string &temp_str )
     return counter ;
 }
 
+int str_to_int( const string &other )
+{
+    int temp_sum = 0 ;
+    for ( int i = 0 ; i < other.size() ; i++ ){
+        temp_sum *= 10 ;
+        temp_sum += other[i] - '0' ;
+    }
+    return temp_sum ;
+}
+
 void get_split_context( string &input_str , stringstream &temp_stream )
 {
     int strip_num = get_strip(input_str) ;
@@ -49,18 +59,6 @@ void date::add_minute(){ all_time += 1 ; }
 
 date date::operator+( int interval_time ) {
     date temp = *this ;
-//    while ( interval_time >= 1440 ){
-//        temp.add_day() ;
-//        interval_time -= 1440 ;
-//    }
-//    while ( interval_time >= 60 ){
-//        temp.add_hour() ;
-//        interval_time -= 60 ;
-//    }
-//    while ( interval_time > 0 ){
-//        temp.add_minute() ;
-//        interval_time -= 1 ;
-//    }
     temp.all_time += interval_time ;
     return temp ;
 }
@@ -75,27 +73,11 @@ void date::del_minute(){ all_time -= 1 ; }
 date date::operator-(int interval_time)
 {
     date temp = *this ;
-//    while ( interval_time >= 1440 ){
-//        temp.del_day() ;
-//        interval_time -= 1440 ;
-//    }
-//    while ( interval_time >= 60 ){
-//        temp.del_hour() ;
-//        interval_time -= 60 ;
-//    }
-//    while ( interval_time > 0 ){
-//        temp.del_minute() ;
-//        interval_time -= 1 ;
-//    }
     temp.all_time -= interval_time ;
     return temp ;
 }
 
 bool date::operator<(const date &other) const {
-//    if ( month != other.month ) return month < other.month ;
-//    if ( day != other.day ) return day < other.day ;
-//    if ( hour != other.hour ) return hour < other.hour ;
-//    return minute < other.minute ;
     return all_time < other.all_time ;
 }
 
@@ -111,9 +93,6 @@ bool date::operator==(const date &other) const {
 
 int date::get_date_index() {
     int temp_index = ( all_time - all_month_add_up[6] ) / ( 24 * 60 ) + 1 ;
-//    if ( month == 7 ) temp_index += 30 ;
-//    if ( month == 8 ) temp_index += 61 ;
-//    temp_index += day ;
     return temp_index ;
 }
 
@@ -151,21 +130,6 @@ void date::get_other_time(date other_date) {
 
 int date::operator-(date other_date) const
 {
-//    date temp_date = other_date ;
-//    int counter = 0 ;
-//    while( temp_date + 1440 < *this || temp_date + 1440 == *this ){
-//        temp_date.add_day() ;
-//        counter += 1440 ;
-//    }
-//    while ( temp_date + 60 < *this || temp_date + 60 == *this ){
-//        temp_date.add_hour() ;
-//        counter += 60 ;
-//    }
-//    while ( temp_date + 1 < *this || temp_date + 1 == *this ){
-//        temp_date.add_minute() ;
-//        counter += 1 ;
-//    }
-
     return all_time - other_date.all_time ;
 }
 
@@ -253,9 +217,14 @@ para::para(stringstream &input_stream)
 
 user::user(para &input_para)
 {
-    stringstream change_stream ;
-    change_stream << input_para.u << " " << input_para.p << " " << input_para.n << " " << input_para.m << " " << input_para.g ;
-    change_stream >> user_name >> password >> chinese_name >> mailAddr >> privilege ;
+//    stringstream change_stream ;
+//    change_stream << input_para.u << " " << input_para.p << " " << input_para.n << " " << input_para.m << " " << input_para.g ;
+//    change_stream >> user_name >> password >> chinese_name >> mailAddr >> privilege ;
+    strcpy(user_name,input_para.u.c_str()) ;
+    strcpy(password,input_para.p.c_str()) ;
+    strcpy(chinese_name,input_para.n.c_str()) ;
+    strcpy(mailAddr,input_para.m.c_str());
+    privilege = str_to_int(input_para.g) ;
 }
 
 bool user::operator<(const user &other_user) const {
@@ -307,11 +276,6 @@ train::train(para &input_para)
     int travel_time[MAX_STATION_SUM] = {0} , stop_over_time[MAX_STATION_SUM] = {0} ;
     change_stream << input_para.i << " " << input_para.n << " " << input_para.m << " " << input_para.s << " " << input_para.p << " " << input_para.x << " " << input_para.t << " " << input_para.o << " " << input_para.d << " " << input_para.y ;
     change_stream >> trainID >> station_num >> seat_num ;
-//    for ( int i = 1 ; i <= MAX_DATE - 1 ; i++ ){
-//        for ( int j = 0 ; j <= station_num ; j++ ){
-//            all_seat[i][j] = seat_num ;
-//        }
-//    }
     change_stream >> temp_str ; // -s stations
     get_split_context(temp_str,ans_stream) ;
     for ( int i = 1 ; i <= station_num ; i++ ){
@@ -353,13 +317,10 @@ train::train(para &input_para)
     for ( int i = 2 ; i <= station_num - 1 ; i++ ){
         pre_sum += travel_time[i] ;
         all_arrive_in[i] = all_set_off[i-1] + travel_time[i] ;
-//        all_arrival[i] = pre_sum ;
         pre_sum += stop_over_time[i] ;
         all_set_off[i] = all_arrive_in[i] + stop_over_time[i] ;
-//        all_departure[i] = pre_sum ;
     }
     all_arrive_in[station_num] = all_set_off[station_num-1] + travel_time[station_num] ;
-//    all_arrival[station_num] = pre_sum + travel_time[station_num] ;
 }
 
 bool train::operator<(const train &other_train) const
@@ -373,8 +334,8 @@ void train::release_train(){ isReleased = true ; }
 
 int train::get_location(string &input_location)
 {
-    stringstream change_stream ; char search_train[MAX_STR_LENGTH] = {0} ;
-    change_stream << input_location ; change_stream >> search_train ;
+     char search_train[MAX_STR_LENGTH] = {0} ;
+    strcpy(search_train,input_location.c_str()) ;
     for ( int i = 1 ; i <= station_num ; i++ ){
         if ( strcmp( all_station[i] , search_train ) == 0 ) return i ;
     }
@@ -394,22 +355,6 @@ bool train::in_sale( date purchase_day , int location )
     if ( temp_date_2 > sale_end  ) return false ;
     return true ;
 }
-
-//void train::ticket_decrease( date purchase_day, int location_1, int location_2, int purchase_ticket )
-//{
-////    purchase_day.get_other_time(all_set_off[location_1]) ;
-////    purchase_day = purchase_day - all_departure[location_1] ;
-////    int temp_day = purchase_day.get_date_index() ;
-////    for ( int i = location_1 ; i < location_2 ; i++ ){
-////        all_seat[temp_day][i] -= purchase_ticket ;
-////    }
-//}
-
-//bool train::ticket_is_enough(date purchase_day, int location_1, int location_2, int purchase_ticket)
-//{
-//    int min_num = get_max_available_ticket(purchase_day,location_1,location_2) ;
-//    return min_num >= purchase_ticket ;
-//}
 
 void train::print_travel( date purchase_day, int location_1, int location_2) // todo print_travel 与 all_seat 已经分离
 {
@@ -474,18 +419,6 @@ int train::get_time(int location_1, int location_2)
     return all_arrive_in[location_2] - all_set_off[location_1] ;
 }
 
-//int train::get_max_available_ticket(date purchase_day, int location_1, int location_2)
-//{
-////    purchase_day.get_other_time(all_set_off[location_1]) ;
-////    purchase_day = purchase_day - all_departure[location_1] ;
-////    int temp_day = purchase_day.get_date_index() , min_num = seat_num ;
-////    for ( int i = location_1 ; i < location_2 ; i++ ){
-////        min_num = min(min_num,all_seat[temp_day][i]) ;
-////    }
-////    return min_num ;
-//    return -1 ;
-//}
-
 train &train::operator=(const train &other)
 {
     if ( this == &other ) return *this ;
@@ -493,8 +426,6 @@ train &train::operator=(const train &other)
     for ( int i = 0 ; i < MAX_STATION_SUM ; i++ ){
         strcpy( all_station[i] , other.all_station[i] ) ;
         all_price[i] = other.all_price[i] ;
-//        all_departure[i] = other.all_departure[i] ;
-//        all_arrival[i] = other.all_arrival[i] ;
         all_set_off[i] = other.all_set_off[i] ;
         all_arrive_in[i] = other.all_arrive_in[i] ;
     }
@@ -504,28 +435,12 @@ train &train::operator=(const train &other)
     isReleased = other.isReleased ;
     seat_num = other.seat_num ;
     station_num = other.station_num ;
-//    waiting_length = other.waiting_length ;
-//    for ( int i = 0 ; i < MAX_DATE ; i++ ){
-//        for ( int j = 0 ; j < MAX_STATION_SUM ; j++ ){
-//            all_seat[i][j] = other.all_seat[i][j] ;
-//        }
-//    }
     return *this ;
 }
 
 bool train::operator==(const train &other_train) const{ return ( strcmp( trainID , other_train.trainID ) == 0 ) ;}
 
 bool train::operator>(const train &other_train) const{ return ( strcmp( trainID , other_train.trainID ) > 0 ) ; }
-
-//void train::ticket_increase(date purchase_day, int location_1, int location_2, int purchase_ticket)
-//{
-////    purchase_day.get_other_time(all_set_off[location_1]) ;
-////    purchase_day = purchase_day - all_departure[location_1] ;
-////    int temp_day = purchase_day.get_date_index() ;
-////    for ( int i = location_1 ; i < location_2 ; i++ ){
-////        all_seat[temp_day][i] += purchase_ticket ;
-////    }
-//}
 
 ostream &operator<<(ostream &os, const train &temp_train) {
     os << "train: " << temp_train.trainID ;
@@ -558,9 +473,7 @@ date train::get_date_index( int location , date purchase_day )
 
 IndexKey::IndexKey(string &input_str)
 {
-    stringstream temp_stream ;
-    temp_stream << input_str ;
-    temp_stream >> real_key ;
+    strcpy(real_key,input_str.c_str()) ;
 }
 
 IndexKey::IndexKey( const char *input_str )
@@ -589,10 +502,12 @@ ostream &operator<<(ostream &os , const IndexKey &temp_key) {
 
 ticket_deal::ticket_deal(para &input_para)
 {
-    stringstream change_stream ; string temp_str ; // date_str
-    change_stream << input_para.u << " " << input_para.i << " " << input_para.d << " " << input_para.n << " " << input_para.f << " " << input_para.t  ;
-    change_stream >> user_name >> trainID >> temp_str >> ticket_num >> from_location >> to_location ;
-    departure_time = date(temp_str) ; // todo 把这个留给 modify
+    strcpy(user_name,input_para.u.c_str()) ;
+    strcpy(trainID,input_para.i.c_str()) ;
+    strcpy(from_location,input_para.f.c_str()) ;
+    strcpy(to_location,input_para.t.c_str()) ;
+    ticket_num = str_to_int(input_para.n) ;
+    departure_time = date(input_para.d) ; // todo 把这个留给 modify
 }
 
 bool ticket_deal::operator<(const ticket_deal &other_deal) const
@@ -601,10 +516,6 @@ bool ticket_deal::operator<(const ticket_deal &other_deal) const
 }
 
 void ticket_deal::change_status(ticket_status temp_status) { deal_status = temp_status ; }
-
-//void ticket_deal::modify_waiting(bool need_to_wait) { isWaiting = need_to_wait ; }
-
-//void ticket_deal::modify_sequence(int user_sequence) { deal_sequence = user_sequence ; }
 
 void ticket_deal::modify_priority(int train_priority) { deal_priority = train_priority ; }
 
@@ -643,9 +554,7 @@ ticket_deal &ticket_deal::operator=(const ticket_deal &other)
     strcpy( to_location , other.to_location ) ;
     price = other.price ;
     ticket_num = other.ticket_num ;
-//    deal_sequence = other.deal_sequence ;
     deal_priority = other.deal_priority ;
-//    isWaiting = other.isWaiting ;
     departure_time = other.departure_time ;
     arrival_time = other.arrival_time ;
     deal_status = other.deal_status ;
@@ -669,8 +578,6 @@ ostream &operator<<( ostream &os , const ticket_deal &temp_deal ) {
 void ticket_deal::ticket_modify( train &temp_train, int location_1, int location_2, date purchase_day)
 {
     price = temp_train.get_price(location_1,location_2) ;
-//    deal_sequence = temp_user.deal_sum + 1 ; // todo 干脆删掉 deal_sequence 比较只使用 deal_priority
-//    deal_priority = temp_train.waiting_length + 1 ;
     departure_time = purchase_day ;
     departure_time.get_other_time(temp_train.all_set_off[location_1]) ;
     arrival_time = departure_time + temp_train.get_time(location_1,location_2) ;

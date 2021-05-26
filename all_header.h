@@ -38,6 +38,8 @@ const int all_month_add_up[13] = {0,0,44640,84960,129600,172800,217440,260640,30
 
 enum ticket_status{ succeed , pending , refunded };
 
+int str_to_int( const string &other ) ;
+
 class train ;
 
 class date
@@ -185,6 +187,7 @@ class train
     friend class ride ;
     friend class ticket_deal ;
 private:
+    bool isReleased = false ;
     char trainID[MAX_STR_LENGTH] = {0} ;
     char train_type = 0 ;
     char all_station[MAX_STATION_SUM][MAX_STR_LENGTH] = {0} ; // station_sum 1-base
@@ -197,7 +200,6 @@ private:
 //    int waiting_length = 0 ;
     date all_set_off[MAX_STATION_SUM] , all_arrive_in[MAX_STATION_SUM] ;
     date sale_begin , sale_end ;
-    bool isReleased = false ;
 
 public:
 
