@@ -42,7 +42,7 @@ private:
     unordered_map<string,int> log_in_user ;
     stringstream command_stream ;
     BPlusTree<IndexKey,user> user_tree ;
-    BPlusTree<IndexKey,int,300,300,5743> train_tree ; // todo 存 int -> 节点 pos
+    BPlusTree<IndexKey,int,250,300,5743> train_tree ; // todo 存 int -> 节点 pos
     BPlusTree<IndexKey,ticket_deal> user_deal_tree ;
     BPlusTree<IndexKey,pair<int,int>,250,300,5743> location_train_tree ; // todo 存 location -> trainID + location_i 类精简数据
     BPlusTree<pair<IndexKey,date>,ticket_deal,200,150> waiting_tree ; // todo  <trainID,date> -> ticket_deal
