@@ -76,7 +76,7 @@ public:
 	}
 
 	size_t size() const {
-        return curElem;
+         return curElem;
 	}
 
 	void push_back(const T &value) {
