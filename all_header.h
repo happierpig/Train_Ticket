@@ -180,12 +180,17 @@ struct day_train{
     bool operator>( const day_train &other ) const ;
 };
 
+// todo station 类
+
+struct station ;
+
 class train
 {
     friend class my_system ;
     friend class IndexKey ;
     friend class ride ;
     friend class ticket_deal ;
+    friend struct station ;
 private:
     bool isReleased = false ;
     char trainID[MAX_STR_LENGTH] = {0} ;
@@ -249,6 +254,23 @@ public:
 
     friend ostream &operator<<( ostream &os , const train &temp_train ) ;
 
+};
+
+struct station{
+    int train_pos = 0 ;
+    int location_pos = 0 ;
+    char trainID[MAX_STR_LENGTH] = {0};
+    char station_name[MAX_STR_LENGTH] = {0};
+    date station_set_off , station_arrive_in , sale_begin , sale_end ; // todo sale_begin 是 all_set_off_1
+    int price_add_up = 0 ;
+    station( int t_pos , int l_pos , train &temp_train ) ;
+    station(){} ;
+    station &operator= ( const station &other ) ;
+    bool operator==( const station &other ) const ;
+    bool operator<( const station &other ) const ;
+    bool operator>( const station &other ) const ; // todo get_date_index
+    bool in_sale( date purchase_day ) ;
+    date get_date_index( date purchase_day ) ;
 };
 
 class IndexKey
