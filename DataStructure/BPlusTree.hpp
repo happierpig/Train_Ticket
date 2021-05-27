@@ -31,7 +31,7 @@ using std::endl;
  * L represents the size of data stored in leaf node
  * C means the size of leaf node which is temporarily stored in cache
  */
-template <class Key,class Data,int M = 250,int L = 130,int C = 311,int D = 20063>
+template <class Key,class Data,int M = 250,int L = 110,int C = 311,int D = 20063>
 class BPlusTree{
 private:
     class basicInfo{
