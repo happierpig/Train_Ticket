@@ -48,6 +48,8 @@ public:
             file.write(reinterpret_cast<const char *>(dataSet), sizeof(dataSet));
         }
     }
+public:
+
     int getPos(){
         if(top == 0) return -1;
         else{
@@ -60,7 +62,6 @@ public:
         dataSet[++top] = pos;
         if(top >= capacity) throw 2;
     }
-    void
 };
 
 
