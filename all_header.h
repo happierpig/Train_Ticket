@@ -3,6 +3,7 @@
 #define TICKETSYSTEM_2021_MAIN_ALL_HEADER_H
 
 #include "DataStructure/BPlusTree.hpp"
+#include "DataStructure/DiskStack.hpp"
 #include <iostream>
 #include <cstdio>
 #include <cstring>

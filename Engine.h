@@ -47,6 +47,7 @@ private:
     BPlusTree<IndexKey,pair<int,int>,200,150,5743> location_train_tree ; // todo 存 location -> trainID + location_i 类精简数据
     BPlusTree<pair<IndexKey,date>,ticket_deal,200,100> waiting_tree ; // todo  <trainID,date> -> ticket_deal
     BPlusTree<pair<IndexKey,date>,day_train,200,100> day_train_tree ;
+    DiskStack<1000> train_disk ;
 
     // todo day_train_tree <trainID,date> -> day_train
 

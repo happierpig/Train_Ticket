@@ -53,7 +53,8 @@ void ride::ride_modify( train &temp_train , int temp_location_1 , int temp_locat
 
 my_system::my_system() : user_tree(string(USER_FILE)) , train_tree(string(TRAIN_FILE)) , user_deal_tree(string(DEAL_FILE)) ,
                          location_train_tree(string(LOCATION_FILE)) , waiting_tree(string(WAITING_LIST_FILE)) ,
-                         day_train_tree(string(DAY_TRAIN_FILE)) , real_train_file(REAL_TRAIN_FILE,ios::in|ios::out|ios::binary) // 委托构造所有的树
+                         day_train_tree(string(DAY_TRAIN_FILE)) , real_train_file(REAL_TRAIN_FILE,ios::in|ios::out|ios::binary) ,
+                         train_disk(string("train_disk")) // 委托构造所有的树
 {
     if ( user_tree.size() == 0 ){
         ofstream temp_file(REAL_TRAIN_FILE,ios::binary) ;
@@ -65,8 +66,13 @@ my_system::my_system() : user_tree(string(USER_FILE)) , train_tree(string(TRAIN_
 
 int my_system::train_insert( train &temp_train ) // todo 不知道要不要修补文件 clear
 {
-    real_train_file.seekp(0,ios::end) ;
-    int temp_pos = real_train_file.tellp() ;
+    int temp_pos = train_disk.getPos() ;
+    if ( temp_pos == -1 ) {
+        real_train_file.seekp(0, ios::end);
+        temp_pos = real_train_file.tellp();
+    }else{
+        real_train_file.seekp(temp_pos,ios::beg) ;
+    }
     real_train_file.write(reinterpret_cast<char*>(&temp_train),sizeof(train)) ;
     return temp_pos ;
 }
@@ -296,6 +302,7 @@ void my_system::delete_train()
     read_train(ans_vec[0],temp_train) ;
     if ( temp_train.is_released() ) { fail() ; return ; }
     train_tree.erase(train_key,ans_vec[0]) ;
+    train_disk.savePos(ans_vec[0]) ;
     success() ;
 }
 
