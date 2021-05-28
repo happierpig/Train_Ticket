@@ -257,9 +257,13 @@ void my_system::release_train() // todo 将 location_train_key -> int
     if ( temp_train.is_released() ){ fail() ; return ; }
     temp_train.release_train() ; // 修改成 release 状态
     day_train every_day_train ;
-    for ( int i = 0 ; i < MAX_STATION_SUM ; i++ ){
-        every_day_train.seat_num[i] = temp_train.seat_num ;
-    }
+//    for ( int i = 0 ; i < MAX_STATION_SUM ; i++ ){
+//        every_day_train.seat_num[i] = temp_train.seat_num ;
+//    }
+    every_day_train.modify_seat(1,MAX_STATION_SUM,temp_train.seat_num) ;
+
+//    cerr << every_day_train.get_max_available_ticket(1,100) ;
+
     for ( int i = 1 ; i <= temp_train.station_num ; i++ ){
         string temp_location(temp_train.all_station[i]) ;
         IndexKey location_key(temp_location) ;
