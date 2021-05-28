@@ -379,7 +379,7 @@ void train::combined_print_train( date query_day , day_train &temp_day_train )
     for ( int i = 2 ; i <= station_num ; i++ ){
         cout << " -> " ;
         query_day.print_date() ;
-        cout << " " << all_price[i-1] << " " << int (temp_day_train.seat_num[i-1] << 8 | temp_day_train.isMore[i-1] )  << endl ;
+        cout << " " << all_price[i-1] << " " << temp_day_train.seat_num[i-1] << endl ;
         cout << all_station[i] << " " ;
         query_day = query_day + ( all_arrive_in[i] - all_set_off[i-1] ) ;
         query_day.print_date() ;
@@ -592,19 +592,15 @@ int day_train::get_max_available_ticket( int location_1 , int location_2 )
 {
     int min_num = 10000000 ;
     for ( int i = location_1 ; i < location_2 ; i++ ){
-        min_num = min_num < int ( seat_num[i] << 8 | isMore[i] ) ? min_num : int ( seat_num[i] << 8 | isMore[i] ) ;
+        min_num = min_num < seat_num[i] ? min_num : seat_num[i] ;
     }
     return min_num ;
 }
 
 void day_train::modify_seat( int location_1 , int location_2 , int ticket_num )
 {
-    int temp_ticket = 0 ;
     for ( int i = location_1 ; i < location_2 ; i++ ){
-        temp_ticket = int ( seat_num[i] << 8 | isMore[i] ) ;
-        temp_ticket += ticket_num ;
-        seat_num[i] = temp_ticket >> 8 ;
-        isMore[i] = temp_ticket & 255U ;
+        seat_num[i] += ticket_num ;
     }
 }
 
@@ -612,8 +608,7 @@ day_train &day_train::operator=(const day_train &temp_day_train)
 {
     if ( this == &temp_day_train ) return *this ;
     for ( int i = 0 ; i < MAX_STATION_SUM ; i++ ){
-        seat_num[i] = temp_day_train.seat_num[i]  ;
-        isMore[i] = temp_day_train.isMore[i] ;
+        seat_num[i] = temp_day_train.seat_num[i] ;
     }
     return *this ;
 }

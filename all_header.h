@@ -3,7 +3,6 @@
 #define TICKETSYSTEM_2021_MAIN_ALL_HEADER_H
 
 #include "DataStructure/BPlusTree.hpp"
-#include "DataStructure/DiskStack.hpp"
 #include <iostream>
 #include <cstdio>
 #include <cstring>
@@ -144,7 +143,7 @@ private:
     char password[MAX_STR_LENGTH] = {0} ;
     char chinese_name[MAX_STR_LENGTH] = {0} ;
     char mailAddr[MAX_STR_LENGTH] = {0};
-    unsigned int privilege = 0 ;
+    int privilege = 0 ;
 //    int deal_sum = 0 ;
 
 public:
@@ -172,8 +171,7 @@ public:
 };
 
 struct day_train{
-    unsigned short seat_num[MAX_STATION_SUM] = {0} ;
-    unsigned char isMore[MAX_STATION_SUM] = {0};
+    int seat_num[MAX_STATION_SUM] = {0} ;
     int get_max_available_ticket( int location_1 , int location_2 ) ;
     void modify_seat( int location_1 , int location_2 , int ticket_num ) ;
     day_train &operator=( const day_train &other ) ;

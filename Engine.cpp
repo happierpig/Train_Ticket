@@ -53,8 +53,7 @@ void ride::ride_modify( train &temp_train , int temp_location_1 , int temp_locat
 
 my_system::my_system() : user_tree(string(USER_FILE)) , train_tree(string(TRAIN_FILE)) , user_deal_tree(string(DEAL_FILE)) ,
                          location_train_tree(string(LOCATION_FILE)) , waiting_tree(string(WAITING_LIST_FILE)) ,
-                         day_train_tree(string(DAY_TRAIN_FILE)) , real_train_file(REAL_TRAIN_FILE,ios::in|ios::out|ios::binary) ,
-                         train_disk(string("train_disk")) // 委托构造所有的树
+                         day_train_tree(string(DAY_TRAIN_FILE)) , real_train_file(REAL_TRAIN_FILE,ios::in|ios::out|ios::binary) // 委托构造所有的树
 {
     if ( user_tree.size() == 0 ){
         ofstream temp_file(REAL_TRAIN_FILE,ios::binary) ;
@@ -66,13 +65,8 @@ my_system::my_system() : user_tree(string(USER_FILE)) , train_tree(string(TRAIN_
 
 int my_system::train_insert( train &temp_train ) // todo 不知道要不要修补文件 clear
 {
-    int temp_pos = train_disk.getPos() ;
-    if ( temp_pos == -1 ) {
-        real_train_file.seekp(0, ios::end);
-        temp_pos = real_train_file.tellp();
-    }else{
-        real_train_file.seekp(temp_pos,ios::beg) ;
-    }
+    real_train_file.seekp(0,ios::end) ;
+    int temp_pos = real_train_file.tellp() ;
     real_train_file.write(reinterpret_cast<char*>(&temp_train),sizeof(train)) ;
     return temp_pos ;
 }
@@ -257,13 +251,9 @@ void my_system::release_train() // todo 将 location_train_key -> int
     if ( temp_train.is_released() ){ fail() ; return ; }
     temp_train.release_train() ; // 修改成 release 状态
     day_train every_day_train ;
-//    for ( int i = 0 ; i < MAX_STATION_SUM ; i++ ){
-//        every_day_train.seat_num[i] = temp_train.seat_num ;
-//    }
-    every_day_train.modify_seat(1,MAX_STATION_SUM,temp_train.seat_num) ;
-
-//    cerr << every_day_train.get_max_available_ticket(1,100) ;
-
+    for ( int i = 0 ; i < MAX_STATION_SUM ; i++ ){
+        every_day_train.seat_num[i] = temp_train.seat_num ;
+    }
     for ( int i = 1 ; i <= temp_train.station_num ; i++ ){
         string temp_location(temp_train.all_station[i]) ;
         IndexKey location_key(temp_location) ;
@@ -306,7 +296,6 @@ void my_system::delete_train()
     read_train(ans_vec[0],temp_train) ;
     if ( temp_train.is_released() ) { fail() ; return ; }
     train_tree.erase(train_key,ans_vec[0]) ;
-    train_disk.savePos(ans_vec[0]) ;
     success() ;
 }
 
