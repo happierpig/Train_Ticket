@@ -9,6 +9,7 @@
 using std::string;
 using std::fstream;
 using std::ios;
+
 template <int capacity = 1000>
 class DiskStack{
 private:
@@ -17,7 +18,7 @@ private:
     int dataSet[capacity];
     int top;
 public:
-    explicit DiskStack(const string & _name):fileName(_name + "_diskStack"){
+    explicit DiskStack(const string & _name):fileName(_name + "_diskStack.dat"){
         file.open(fileName,ios::in);
         memset(dataSet,0,sizeof(dataSet));
         if(file.fail()){
