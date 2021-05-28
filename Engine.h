@@ -43,12 +43,12 @@ private:
     //map<user,int> log_in_user ;
     unordered_map<string,int> log_in_user ;
     stringstream command_stream ;
-    BPlusTree<IndexKey,user,150,150,311> user_tree ;
+    BPlusTree<IndexKey,user> user_tree ;
     BPlusTree<IndexKey,int,200,300,5743> train_tree ; // todo 存 int -> 节点 pos
     BPlusTree<IndexKey,ticket_deal> user_deal_tree ;
     BPlusTree<IndexKey,station> location_train_tree ; // todo 存 location -> trainID + location_i 类精简数据
-    BPlusTree<pair<IndexKey,date>,ticket_deal,130,100> waiting_tree ; // todo  <trainID,date> -> ticket_deal
-    BPlusTree<pair<IndexKey,date>,day_train,130,100> day_train_tree ;
+    BPlusTree<pair<IndexKey,date>,ticket_deal,200,100> waiting_tree ; // todo  <trainID,date> -> ticket_deal
+    BPlusTree<pair<IndexKey,date>,day_train,200,100> day_train_tree ;
 
     // todo day_train_tree <trainID,date> -> day_train
 
