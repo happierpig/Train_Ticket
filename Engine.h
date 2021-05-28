@@ -27,8 +27,6 @@ public:
 
     ride( train &temp_train , int temp_location_1 , int temp_location_2 , date purchase_day , day_train &temp_day_train ) ;
 
-    ride( station &temp_station_1 , station &temp_station_2 , day_train &temp_day_train , date purchase_day ) ;
-
     bool operator<( const ride &other ) const ;
 
     void print_ride() ;
@@ -46,7 +44,7 @@ private:
     BPlusTree<IndexKey,user> user_tree ;
     BPlusTree<IndexKey,int,200,300,5743> train_tree ; // todo 存 int -> 节点 pos
     BPlusTree<IndexKey,ticket_deal> user_deal_tree ;
-    BPlusTree<IndexKey,station> location_train_tree ; // todo 存 location -> trainID + location_i 类精简数据
+    BPlusTree<IndexKey,pair<int,int>,200,150,5743> location_train_tree ; // todo 存 location -> trainID + location_i 类精简数据
     BPlusTree<pair<IndexKey,date>,ticket_deal,200,100> waiting_tree ; // todo  <trainID,date> -> ticket_deal
     BPlusTree<pair<IndexKey,date>,day_train,200,100> day_train_tree ;
 
@@ -54,7 +52,7 @@ private:
 
     // todo waiting_tree 双 key <trainID,date>
 
-    // todo location_train_tree <location> -> <station>
+    // todo location_train_tree <location> -> <train_pos,location_i>
 
     fstream real_train_file ;
 
@@ -99,7 +97,7 @@ public:
 
     void process_command( string &all_command ) ;
 
-    void make_ride( string &from_location , string &to_location , vector<ride> &ans_vec , vector<pair<int,pair<int,int>>> &all_train_key , date purchase_day ) ; // todo make_ride 不需要了
+    void make_ride( string &from_location , string &to_location , vector<ride> &ans_vec , vector<pair<int,pair<int,int>>> &all_train_key , date purchase_day ) ;
 
     void add_user() ;
 
@@ -119,7 +117,7 @@ public:
 
     void delete_train() ;
 
-    void query_ticket() ; // todo 不去读 train
+    void query_ticket() ;
 
     void query_transfer() ; // todo 第一辆车乘坐时间更少
 
