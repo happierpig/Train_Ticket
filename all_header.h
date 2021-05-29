@@ -24,6 +24,8 @@
 #define WAITING_LIST_FILE "waiting_list_file"
 #define DAY_TRAIN_FILE "day_train_file"
 #define REAL_TRAIN_FILE "real_train_file.dat"
+#define REAL_USER_FILE "real_user_file.dat"
+#define REAL_DAY_TRAIN_FILE "real_day_train_file.dat"
 #define MAX_MONEY_COST 2000000000
 
 using namespace std ;

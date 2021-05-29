@@ -53,13 +53,16 @@ void ride::ride_modify( train &temp_train , int temp_location_1 , int temp_locat
 
 my_system::my_system() : user_tree(string(USER_FILE)) , train_tree(string(TRAIN_FILE)) , user_deal_tree(string(DEAL_FILE)) ,
                          location_train_tree(string(LOCATION_FILE)) , waiting_tree(string(WAITING_LIST_FILE)) ,
-                         day_train_tree(string(DAY_TRAIN_FILE)) , real_train_file(REAL_TRAIN_FILE,ios::in|ios::out|ios::binary) // 委托构造所有的树
+                         day_train_tree(string(DAY_TRAIN_FILE)) , real_train_file(REAL_TRAIN_FILE,ios::in|ios::out|ios::binary) ,
+                         real_day_train_file(REAL_DAY_TRAIN_FILE,ios::in|ios::out|ios::binary),real_user_file(REAL_USER_FILE,ios::in|ios::out|ios::binary) // 委托构造所有的树
 {
     if ( user_tree.size() == 0 ){
-        ofstream temp_file(REAL_TRAIN_FILE,ios::binary) ;
-        temp_file.close() ;
-        real_train_file.clear() ;
+        ofstream temp_file(REAL_TRAIN_FILE,ios::binary) , temp_user_file(REAL_USER_FILE,ios::binary) , temp_day_train_file(REAL_DAY_TRAIN_FILE,ios::binary) ;
+        temp_file.close() ; temp_user_file.close() ; temp_day_train_file.close() ;
+        real_train_file.clear() ; real_user_file.clear() ; real_day_train_file.clear() ;
         real_train_file.open(REAL_TRAIN_FILE,ios::in|ios::out|ios::binary) ;
+        real_user_file.open(REAL_USER_FILE,ios::in|ios::out|ios::binary) ;
+        real_day_train_file.open(REAL_DAY_TRAIN_FILE,ios::in|ios::out|ios::binary) ;
     }
 }
 
@@ -71,11 +74,32 @@ int my_system::train_insert( train &temp_train ) // todo 不知道要不要修�
     return temp_pos ;
 }
 
+int my_system::day_train_insert(day_train &temp_day_train)
+{
+    real_day_train_file.seekp(0,ios::end) ;
+    int temp_pos = real_day_train_file.tellp() ;
+    real_day_train_file.write(reinterpret_cast<char*>(&temp_day_train),sizeof(day_train)) ;
+    return temp_pos ;
+}
+
 void my_system::read_train( int train_pos , train &temp_train )
 {
     real_train_file.seekg(train_pos,ios::beg) ;
     real_train_file.read(reinterpret_cast<char*>(&temp_train),sizeof(train)) ;
     real_train_file.clear() ;
+}
+
+void my_system::read_user(int user_pos, user &temp_user)
+{
+    real_user_file.seekg(user_pos,ios::beg) ;
+    real_user_file.read(reinterpret_cast<char*>(&temp_user),sizeof(user)) ;
+    real_user_file.clear() ;
+}
+void my_system::read_day_train(int day_train_pos, day_train &temp_day_train)
+{
+    real_day_train_file.seekg(day_train_pos,ios::beg) ;
+    real_day_train_file.read(reinterpret_cast<char*>(&temp_day_train),sizeof(day_train)) ;
+    real_day_train_file.clear() ;
 }
 
 bool my_system::check_priority(string &c_user_name, user &u_user)
@@ -99,11 +123,19 @@ void my_system::fail( string err_inf  ) {
 #endif
 }
 
-void my_system::user_update(user &u_user)
+void my_system::user_update( int user_pos , user &u_user)
 {
-    IndexKey user_key(u_user) ;
-    user &real_user = user_tree.update(user_key,u_user) ;
-    real_user = u_user ; // 调用一次赋值
+//    IndexKey user_key(u_user) ;
+//    user &real_user = user_tree.update(user_key,u_user) ;
+//    real_user = u_user ; // 调用一次赋值
+    real_user_file.seekp(user_pos,ios::beg) ;
+    real_user_file.write(reinterpret_cast<char*>(&u_user),sizeof(user)) ;
+}
+
+void my_system::day_train_update(int day_train_pos, day_train &t_day_train)
+{
+    real_day_train_file.seekp(day_train_pos,ios::beg) ;
+    real_day_train_file.write(reinterpret_cast<char*>(&t_day_train),sizeof(day_train)) ;
 }
 
 void my_system::train_update( int train_pos  )
@@ -159,10 +191,18 @@ void my_system::process_command(string &all_command)
 bool my_system::no_repeated_user(user &u_user)
 {
     IndexKey user_key(u_user) ;
-    vector<user> ans_vec ;
+    vector<int> ans_vec ;
     user_tree.find(user_key,ans_vec) ;
     if ( ans_vec.empty() ) return true ;
     return false ;
+}
+
+int my_system::user_insert(user &temp_user)
+{
+    real_user_file.seekp(0,ios::end) ;
+    int temp_pos = real_user_file.tellp() ;
+    real_user_file.write(reinterpret_cast<char*>(&temp_user),sizeof(user)) ;
+    return temp_pos ;
 }
 
 void my_system::add_user()
@@ -172,7 +212,7 @@ void my_system::add_user()
     if ( !user_tree.empty() && (!check_login(temp_para.c) || !check_priority(temp_para.c,temp_user) || !no_repeated_user(temp_user)) ){ fail() ; return ; }
     if ( user_tree.empty() ) temp_user.privilege = 10 ;
     IndexKey user_key(temp_para.u) ;
-    user_tree.insert(user_key,temp_user) ;
+    user_tree.insert(user_key,user_insert(temp_user)) ;
     success() ;
 }
 
@@ -181,10 +221,13 @@ void my_system::login()
     para temp_para(command_stream) ;
     IndexKey user_key(temp_para.u) ;
     if ( log_in_user.count(temp_para.u) ){ fail() ; return ; } // 已登录不可再登录
-    vector<user> ans_vec ;
+    vector<int> ans_vec ;
     user_tree.find(user_key,ans_vec) ;
-    if ( ans_vec.empty() || !ans_vec[0].right_password(temp_para.p) ) { fail(); return ; }
-    log_in_user[temp_para.u] = ans_vec[0].privilege ;
+    if ( ans_vec.empty() ) { fail(); return ; }
+    user temp_user ;
+    read_user(ans_vec[0],temp_user) ;
+    if ( !temp_user.right_password(temp_para.p) ) { fail() ; return ; }
+    log_in_user[temp_para.u] = temp_user.privilege ;
     success() ;
 }
 
@@ -201,10 +244,13 @@ void my_system::query_profile()
     para temp_para( command_stream ) ;
     if ( !check_login(temp_para.c) ) { fail(); return ; }
     IndexKey user_key(temp_para.u) ;
-    vector<user> ans_vec ;
+    vector<int> ans_vec ;
     user_tree.find(user_key,ans_vec) ;
-    if ( ans_vec.empty() || !check_priority(temp_para.c,ans_vec[0]) ) { fail(); return ; }
-    ans_vec[0].print_user() ;
+    if ( ans_vec.empty() ) { fail(); return ; }
+    user temp_user ;
+    read_user(ans_vec[0],temp_user) ;
+    if ( !check_priority(temp_para.c,temp_user) ) { fail() ; return ; }
+    temp_user.print_user() ;
 }
 
 void my_system::modify_profile()
@@ -212,19 +258,22 @@ void my_system::modify_profile()
     para temp_para(command_stream) ;
     if ( !check_login(temp_para.c) ) { fail(); return ; }
     IndexKey user_key(temp_para.u) ;
-    vector<user> ans_vec ;
+    vector<int> ans_vec ;
     user_tree.find(user_key,ans_vec) ;
-    if ( ans_vec.empty() || !check_priority(temp_para.c,ans_vec[0]) ) { fail(); return ; }
-    if ( !temp_para.p.empty() ) { strcpy(ans_vec[0].password,temp_para.p.c_str()) ; }
-    if ( !temp_para.n.empty() ) { strcpy(ans_vec[0].chinese_name,temp_para.n.c_str()) ; }
-    if ( !temp_para.m.empty() ) { strcpy(ans_vec[0].mailAddr,temp_para.m.c_str()) ; }
-    if ( !temp_para.g.empty() ) { ans_vec[0].privilege = str_to_int(temp_para.g) ; }
-    if ( ans_vec[0].privilege >= log_in_user[temp_para.c] && !temp_para.g.empty() ) { fail(); return ; }
+    if ( ans_vec.empty() ) { fail(); return ; }
+    user temp_user ;
+    read_user( ans_vec[0] , temp_user ) ;
+    if ( !check_priority(temp_para.c,temp_user) ) { fail() ; return ; }
+    if ( !temp_para.p.empty() ) { strcpy(temp_user.password,temp_para.p.c_str()) ; }
+    if ( !temp_para.n.empty() ) { strcpy(temp_user.chinese_name,temp_para.n.c_str()) ; }
+    if ( !temp_para.m.empty() ) { strcpy(temp_user.mailAddr,temp_para.m.c_str()) ; }
+    if ( !temp_para.g.empty() ) { temp_user.privilege = str_to_int(temp_para.g) ; }
+    if ( temp_user.privilege >= log_in_user[temp_para.c] && !temp_para.g.empty() ) { fail(); return ; }
     if ( check_login(temp_para.u) ){
-        log_in_user[temp_para.u] = ans_vec[0].privilege ;
+        log_in_user[temp_para.u] = temp_user.privilege ;
     }
-    user_update(ans_vec[0]) ;
-    ans_vec[0].print_user() ;
+    user_update(ans_vec[0],temp_user) ;
+    temp_user.print_user() ;
 }
 
 void my_system::add_train()
@@ -262,7 +311,7 @@ void my_system::release_train() // todo 将 location_train_key -> int
     date temp_date = temp_train.sale_begin ;
     temp_date.become_first_minute() ;
     for ( ; temp_date < temp_train.sale_end || temp_date == temp_train.sale_end ; temp_date = temp_date + 1440 ){
-        day_train_tree.insert({train_key,temp_date},every_day_train) ;
+        day_train_tree.insert({train_key,temp_date},day_train_insert(every_day_train)) ;
     }
     train_update(ans_vec[0]) ;
     success() ;
@@ -280,9 +329,11 @@ void my_system::query_train()
     read_train(ans_vec[0],temp_train) ;
     if ( !temp_train.in_sale(temp_date,1) ) { fail() ; return ; }
     if ( !temp_train.is_released() ) { temp_train.print_train(date(temp_date)); return ; }
-    vector<day_train> day_train_vec ;
+    vector<int> day_train_vec ;
     day_train_tree.find({train_key,temp_date},day_train_vec) ;
-    temp_train.combined_print_train(temp_date,day_train_vec[0]) ;
+    day_train temp_day_train ;
+    read_day_train(day_train_vec[0],temp_day_train) ;
+    temp_train.combined_print_train(temp_date,temp_day_train) ;
 }
 
 void my_system::delete_train()
@@ -302,15 +353,16 @@ void my_system::delete_train()
 
 void my_system::make_ride( string &from_location , string &to_location , vector<ride> &ans_vec , vector<pair<int,pair<int,int>>> &all_train_key , date purchase_day ) // todo 直接查车
 {
-    train temp_train ;
-    vector<day_train> day_train_vec ; // todo purchase_day 并不是发车日期
+    train temp_train ; day_train temp_day_train ;
+    vector<int> day_train_vec ; // todo purchase_day 并不是发车日期
     date temp_date = purchase_day ;
     for ( int i = 0 ; i < all_train_key.size() ; i++ ){
         read_train(all_train_key[i].first,temp_train) ; // todo purchase_day 347040
         if ( !temp_train.in_sale(purchase_day,all_train_key[i].second.first) ) continue ;
         temp_date = temp_train.get_date_index(all_train_key[i].second.first,purchase_day) ; // todo 将 get_date_index 封装
         day_train_tree.find({IndexKey(temp_train.trainID),temp_date},day_train_vec) ;
-        ride temp_ride(temp_train,all_train_key[i].second.first,all_train_key[i].second.second,purchase_day,day_train_vec[0]) ;
+        read_day_train(day_train_vec[0],temp_day_train) ;
+        ride temp_ride(temp_train,all_train_key[i].second.first,all_train_key[i].second.second,purchase_day,temp_day_train) ;
         ans_vec.push_back(temp_ride) ;
         day_train_vec.clear() ;
     }
@@ -386,12 +438,15 @@ void my_system::query_transfer() // todo day_train 没有 modify
                 if ( !temp_train_2.can_take_in_time(mid_set_off_day,second_mid_point ) ) { // todo 传引用变成出发时间
                     continue ;
                 }
-                vector<day_train> temp_day_train_vec ;
+                vector<int> temp_day_train_vec ; // todo be careful
+                day_train temp_day_train_1 , temp_day_train_2 ;
                 day_train_tree.find({IndexKey(temp_train_1.trainID),temp_train_1.get_date_index(start_point,purchase_day)},temp_day_train_vec) ;
-                temp_ride_1.ride_modify(temp_train_1,start_point,first_mid_point,purchase_day,temp_day_train_vec[0]) ;
+                read_day_train(temp_day_train_vec[0],temp_day_train_1) ;
+                temp_ride_1.ride_modify(temp_train_1,start_point,first_mid_point,purchase_day,temp_day_train_1) ;
                 temp_day_train_vec.clear();
                 day_train_tree.find({IndexKey(temp_train_2.trainID),temp_train_2.get_date_index(second_mid_point,mid_set_off_day)},temp_day_train_vec) ;
-                temp_ride_2.ride_modify(temp_train_2,second_mid_point,end_point,mid_set_off_day,temp_day_train_vec[0]) ;
+                read_day_train(temp_day_train_vec[0],temp_day_train_2) ;
+                temp_ride_2.ride_modify(temp_train_2,second_mid_point,end_point,mid_set_off_day,temp_day_train_2) ;
                 temp_day_train_vec.clear() ;
                 if ( temp_para.p != "cost" ){
                     int temp_ans = mid_set_off_day - purchase_day + temp_ride_2.time_cost ;
@@ -430,14 +485,15 @@ void my_system::buy_ticket() // todo 不去读 user 了
     int location_1 = temp_train.get_location(temp_para.f) , location_2 = temp_train.get_location(temp_para.t) ;
     if ( !temp_train.is_released() || location_1 == -1 || location_2 == -1 || location_1 >= location_2 || !temp_train.in_sale(purchase_day,location_1) ) { fail("invalid train") ; return ; } // todo Mingwin 环境下会出现错误
     ticket_deal temp_deal(temp_para) ;
-    vector<day_train> temp_day_train_vec ;
+    vector<int> temp_day_train_vec ; day_train temp_day_train ;
     day_train_tree.find({train_key,temp_train.get_date_index(location_1,purchase_day)},temp_day_train_vec) ;
-    int max_available_tickets = temp_day_train_vec[0].get_max_available_ticket(location_1,location_2) ;
+    read_day_train(temp_day_train_vec[0],temp_day_train) ;
+    int max_available_tickets = temp_day_train.get_max_available_ticket(location_1,location_2) ;
     if ( temp_deal.ticket_num > temp_train.seat_num || ( max_available_tickets < temp_deal.ticket_num && temp_para.q != "true" ) ) { fail() ; return ; }
     temp_deal.ticket_modify(temp_train,location_1,location_2,purchase_day) ; // todo 剥离 user
     temp_deal.deal_priority = user_deal_tree.size() ;
     if ( max_available_tickets >= temp_deal.ticket_num ){
-        temp_day_train_vec[0].modify_seat(location_1,location_2,-temp_deal.ticket_num) ;
+        temp_day_train.modify_seat(location_1,location_2,-temp_deal.ticket_num) ;
         temp_deal.deal_status = succeed ;
         cout << ( long long ) temp_deal.price * ( long long ) temp_deal.ticket_num << endl ;
     }else{
@@ -445,9 +501,11 @@ void my_system::buy_ticket() // todo 不去读 user 了
         cout << "queue" << endl ;
         waiting_tree.insert({train_key,temp_deal.train_set_off},temp_deal) ;
     }
-    user_deal_tree.insert(user_key,temp_deal) ;
-    day_train &real_day_train = day_train_tree.update({train_key,temp_train.get_date_index(location_1,purchase_day)},temp_day_train_vec[0]) ;
-    real_day_train = temp_day_train_vec[0] ; // 直接更改
+    user_deal_tree.insert(user_key,temp_deal) ; // todo 修改 day_train
+    day_train_update(temp_day_train_vec[0],temp_day_train) ;
+//    day_train &real_day_train = day_train_tree.update({train_key,temp_train.get_date_index(location_1,purchase_day)},temp_day_train_vec[0]) ;
+//    real_day_train = temp_day_train_vec[0] ; // 直接更改
+
 #ifdef my_debug
 
     if ( !stop_core && temp_para.i == "LeavesofGrass" && ( temp_para.d == "06-18" || temp_para.d == "06-19" ) ){
@@ -496,15 +554,16 @@ void my_system::refund_ticket() // todo line 265 refund 失败 finish
         success() ;
         return ;
     }
-    vector<day_train> day_train_vec ;
+    vector<int> day_train_vec ; day_train temp_day_train ;
     day_train_tree.find({IndexKey(temp_deal.trainID),temp_deal.train_set_off},day_train_vec) ;
-    day_train_vec[0].modify_seat(temp_deal.int_location_1,temp_deal.int_location_2,temp_deal.ticket_num) ; // 把车票还回去
+    read_day_train(day_train_vec[0],temp_day_train) ;
+    temp_day_train.modify_seat(temp_deal.int_location_1,temp_deal.int_location_2,temp_deal.ticket_num) ; // 把车票还回去
     waiting_tree.find({train_key,temp_deal.train_set_off},waiting_vec) ;
     sort(waiting_vec.begin(),waiting_vec.end(),less<ticket_deal>()) ;
     for ( int i = 0 ; i < waiting_vec.size() ; i++ ){ // todo 要把 waiting_vec 排序来比较先后 ?
-        int available_tickets = day_train_vec[0].get_max_available_ticket(waiting_vec[i].int_location_1,waiting_vec[i].int_location_2) ;
+        int available_tickets = temp_day_train.get_max_available_ticket(waiting_vec[i].int_location_1,waiting_vec[i].int_location_2) ;
         if ( available_tickets >= waiting_vec[i].ticket_num ){
-            day_train_vec[0].modify_seat(waiting_vec[i].int_location_1,waiting_vec[i].int_location_2,-waiting_vec[i].ticket_num) ; // 把区间票数耗光
+            temp_day_train.modify_seat(waiting_vec[i].int_location_1,waiting_vec[i].int_location_2,-waiting_vec[i].ticket_num) ; // 把区间票数耗光
             waiting_tree.erase({train_key,temp_deal.train_set_off},waiting_vec[i]) ; // 删掉等待队列内容
             waiting_vec[i].deal_status = succeed ;
             deal_update(waiting_vec[i]) ;
@@ -512,8 +571,9 @@ void my_system::refund_ticket() // todo line 265 refund 失败 finish
     }
     temp_deal.deal_status = refunded ; // todo 修改 day_train 信息
     deal_update(temp_deal) ;
-    day_train &real_day_train = day_train_tree.update({IndexKey(temp_deal.trainID),temp_deal.train_set_off},day_train_vec[0]) ;
-    real_day_train = day_train_vec[0] ;
+//    day_train &real_day_train = day_train_tree.update({IndexKey(temp_deal.trainID),temp_deal.train_set_off},day_train_vec[0]) ;
+//    real_day_train = day_train_vec[0] ;
+    day_train_update(day_train_vec[0],temp_day_train) ;
     success() ;
 }
 
@@ -532,6 +592,11 @@ void my_system::clean()
     log_in_user.clear() ;
     success() ;
 }
+
+
+
+
+
 
 
 
