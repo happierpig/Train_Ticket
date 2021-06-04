@@ -44,6 +44,7 @@ namespace myFunctions{
 
     template <class T>
     void sort(vector<T> & vec,int l,int r){
+        if(r < 0) return;
         if(l==r) return;
         int mid = (l+r) >> 1;
         sort(vec,l,mid);
