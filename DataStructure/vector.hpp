@@ -5,7 +5,7 @@
 #include <cstddef>
 
 namespace sjtu {
-    const static int initSize = 20;
+    const static int initSize = 100;
 template<typename T>
 class vector {
 private:
