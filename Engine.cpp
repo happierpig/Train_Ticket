@@ -228,7 +228,8 @@ void my_system::login()
     user temp_user ;
     read_user(ans_vec[0],temp_user) ;
     if ( !temp_user.right_password(temp_para.p) ) { fail() ; return ; }
-    log_in_user[temp_para.u] = temp_user.privilege ;
+    log_in_user.insert(temp_para.u,temp_user.privilege);
+//    log_in_user[temp_para.u] = temp_user.privilege ;
     success() ;
 }
 
