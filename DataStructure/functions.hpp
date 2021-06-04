@@ -4,10 +4,10 @@
 
 #ifndef TRAIN_TICKET_FUNCTIONS_HPP
 #define TRAIN_TICKET_FUNCTIONS_HPP
-//#include "vector.hpp"
-//using sjtu::vector;
-#include <vector>
-using std::vector;
+#include "vector.hpp"
+using sjtu::vector;
+//#include <vector>
+//using std::vector;
 namespace myFunctions{
 
     // find the minimum number which is larger than _target
@@ -43,15 +43,15 @@ namespace myFunctions{
     }
 
     template <class T>
-    void sort(vector<T> & vec,int l,int r,bool (*cmp)(T,T)){
+    void sort(vector<T> & vec,int l,int r){
         if(l==r) return;
         int mid = (l+r) >> 1;
-        sort(vec,l,mid,cmp);
-        sort(vec,mid+1,r,cmp);
+        sort(vec,l,mid);
+        sort(vec,mid+1,r);
         vector<T> tmpSet;
         int x = l,y = mid + 1;
         while(x <= mid && y <= r){
-            if(cmp(vec[x],vec[y])) tmpSet.push_back(vec[x++]);
+            if(vec[x] < vec[y]) tmpSet.push_back(vec[x++]);
             else tmpSet.push_back(vec[y++]);
         }
         while(x <= mid) tmpSet.push_back(vec[x++]);

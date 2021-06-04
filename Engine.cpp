@@ -392,9 +392,10 @@ void my_system::query_ticket() // todo 将所有 train_key 换成 pos
 // todo 重构后小心 反向位移未察觉
     vector<ride> available_ride ; // todo 判无车
     make_ride(temp_para.s,temp_para.t,available_ride,all_train_key,purchase_day) ;
-    if ( temp_para.p == "cost" )
-        for ( auto it = available_ride.begin() ; it != available_ride.end() ; it++){ it->real_type = money ; }
-    sort(available_ride.begin(),available_ride.end(),less<ride>()) ;
+    if ( temp_para.p == "cost" ) {
+        for (int i = 0;i < available_ride.size();++i) { available_ride[i].real_type = money; }
+    }
+    sort(available_ride,0,available_ride.size()-1) ;
     if ( available_ride.empty() ) { success() ; return ; } // 无车
     cout << available_ride.size() << endl ;
     for ( int i = 0 ; i < available_ride.size() ; i++ ){
@@ -528,7 +529,7 @@ void my_system::query_order()
     vector<ticket_deal> ans_vec ;
     user_deal_tree.find(user_key,ans_vec) ;
     cout << ans_vec.size() << endl ;
-    sort(ans_vec.begin(),ans_vec.end(),less<ticket_deal>()) ;
+    sort(ans_vec,0,ans_vec.size()-1) ;
     for ( int i = ans_vec.size() - 1 ; i >= 0 ; i-- ){
         ans_vec[i].print_deal() ;
     }
@@ -543,7 +544,7 @@ void my_system::refund_ticket() // todo line 265 refund 失败 finish
     IndexKey user_key(temp_para.u) ;
     vector<ticket_deal> ans_vec , waiting_vec ;
     user_deal_tree.find(user_key,ans_vec) ;
-    sort(ans_vec.begin(),ans_vec.end(),less<ticket_deal>()) ;
+    sort(ans_vec,0,ans_vec.size()-1) ;
     if ( target_deal > ans_vec.size() ) { fail("no so many deals") ; return ; } // 没有那么多订单
     ticket_deal temp_deal = ans_vec[ans_vec.size()-target_deal] ;
     if ( temp_deal.deal_status == refunded ) { fail() ; return ; } // 直接成功
@@ -561,7 +562,7 @@ void my_system::refund_ticket() // todo line 265 refund 失败 finish
     read_day_train(day_train_vec[0],temp_day_train) ;
     temp_day_train.modify_seat(temp_deal.int_location_1,temp_deal.int_location_2,temp_deal.ticket_num) ; // 把车票还回去
     waiting_tree.find({train_key,temp_deal.train_set_off},waiting_vec) ;
-    sort(waiting_vec.begin(),waiting_vec.end(),less<ticket_deal>()) ;
+    sort(waiting_vec,0,waiting_vec.size()-1) ;
     for ( int i = 0 ; i < waiting_vec.size() ; i++ ){ // todo 要把 waiting_vec 排序来比较先后 ?
         int available_tickets = temp_day_train.get_max_available_ticket(waiting_vec[i].int_location_1,waiting_vec[i].int_location_2) ;
         if ( available_tickets >= waiting_vec[i].ticket_num ){

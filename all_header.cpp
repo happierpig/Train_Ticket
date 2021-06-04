@@ -1,5 +1,4 @@
 #include "all_header.h"
-using namespace std ;
 
 int get_strip( string &temp_str )
 {

@@ -4,7 +4,6 @@
 #define TICKETSYSTEM_2021_MAIN_ENGINE_H
 
 #include "all_header.h"
-using namespace std ;
 
 enum cost_type{ money , mytime };
 

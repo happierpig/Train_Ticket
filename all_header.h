@@ -10,9 +10,19 @@
 #include <cmath>
 #include <map>
 #include <unordered_map>
-#include <vector>
-#include <algorithm>
+#include "DataStructure/vector.hpp"
+//#include <vector>
 #include "DataStructure/HashMap.hpp"
+#include "DataStructure/functions.hpp"
+
+using sjtu::vector;
+//using std::vector;
+using std::less;
+using std::stringstream;
+using std::ostream;
+using std::pair;
+using std::ofstream;
+using myFunctions::sort;
 
 #define MAX_STR_LENGTH 51
 #define MAX_STATION_SUM 105
@@ -29,7 +39,6 @@
 #define REAL_DAY_TRAIN_FILE "real_day_train_file.dat"
 #define MAX_MONEY_COST 2000000000
 
-using namespace std ;
 
 int get_strip( string &temp_str ) ; // 中间条纹数
 
