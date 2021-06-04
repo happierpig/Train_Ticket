@@ -39,7 +39,7 @@ class my_system
 {
 private:
     //map<user,int> log_in_user ;
-    unordered_map<string,int> log_in_user ;
+    HashMap<string,int> log_in_user;
     stringstream command_stream ;
     BPlusTree<IndexKey,int> user_tree ;
     BPlusTree<IndexKey,int,200,300,5743> train_tree ; // todo 存 int -> 节点 pos

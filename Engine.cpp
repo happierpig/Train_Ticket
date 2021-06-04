@@ -52,6 +52,7 @@ void ride::ride_modify( train &temp_train , int temp_location_1 , int temp_locat
 
 
 my_system::my_system() : user_tree(string(USER_FILE)) , train_tree(string(TRAIN_FILE)) , user_deal_tree(string(DEAL_FILE)) ,
+                         log_in_user(44027),
                          location_train_tree(string(LOCATION_FILE)) , waiting_tree(string(WAITING_LIST_FILE)) ,
                          day_train_tree(string(DAY_TRAIN_FILE)) , real_train_file(REAL_TRAIN_FILE,ios::in|ios::out|ios::binary) ,
                          real_day_train_file(REAL_DAY_TRAIN_FILE,ios::in|ios::out|ios::binary),real_user_file(REAL_USER_FILE,ios::in|ios::out|ios::binary) // 委托构造所有的树

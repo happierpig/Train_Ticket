@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <vector>
 #include <algorithm>
+#include "DataStructure/HashMap.hpp"
 
 #define MAX_STR_LENGTH 51
 #define MAX_STATION_SUM 105
