@@ -28,6 +28,16 @@
 >
 > std::hash<key>
 
+### 类设计：
+
+- class LinkList
+
+  最普通的单向链表 用来保存发生hash碰撞相同key值的元素
+
+- LinkList * dataSet
+
+  是一个链表数组 有capacity个链表来保存对应key值的元素
+
 ### 原理：
 
 当发生哈希碰撞时将该数据加入到当前hash(key)对应链表的末尾。
@@ -99,6 +109,15 @@ template<class Key,class Data,class Hash = std::hash<Key>>
 该类封装了b+树与文件交互的部分。其中封装了文件回收和cache(LRU)
 
 b+树中通过调用*DiskManager*的read()和write()函数进行获取数据
+
+### 类设计：
+
+- class List{}
+
+  是一个双向链表 用来维护缓存中存储的数据元素
+
+- HashMap：用来实现高效的判断存在和调取元素
+- int nowPtr,nextPtr: 用来存储可用的文件位置(文件空间回收)
 
 ### 原理：
 
@@ -172,6 +191,32 @@ b+树中通过调用*DiskManager*的read()和write()函数进行获取数据
 ## BPlusTree
 
 实现为可重复key。文件读写部分采用DiskManager封装起来
+
+### 类设计：
+
+- class basicInfo
+
+  保存树的基本信息：根的位置 头的位置以及数据数量
+
+  在构造和析构时对文件进行读写以维护数据的可复用(第一次打开文件特判)
+
+- class recursiveKey
+
+  是一个简单的栈
+
+  目的：插入时顺着索引一路向下将路上的索引压入栈中，在插入后进行的各种操作不用再寻找节点对应的上一层key值是第几个
+
+  删除时不能使用
+
+- class leafNode;class Node
+
+  叶子节点和内部节点
+
+  内置了删除和插入时需要进行的操作：合并、分裂、借儿子
+
+- DiskManager leafDisk,nodeDisk;
+
+  使用DiskManager类对b+树进行的文件操作进行封装
 
 ### 接口：
 
