@@ -9,8 +9,8 @@
 
 |                   Teammate                    |        Mission        |
 | :-------------------------------------------: | :-------------------: |
-| [andy-yang-1](https://github.com/andy-yang-1) |    Main procedure     |
-|   [happypig](https://github.com/happierpig)   | DataStructure: B+Tree |
+| [andy-yang-1](https://github.com/andy-yang-1) |    Main procedure｜Web BackEnd|    |
+|   [happypig](https://github.com/happierpig)   | DataStructure｜Web FrontEnd |
 
 ## 概况
 

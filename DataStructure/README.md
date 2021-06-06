@@ -171,4 +171,59 @@ b+树中通过调用*DiskManager*的read()和write()函数进行获取数据
 
 ## BPlusTree
 
-实现为可重复key
+实现为可重复key。文件读写部分采用DiskManager封装起来
+
+### 接口：
+
+- ```c++
+  template <class Key,class Data,int M = 250,int L = 100,int C = 311,int D = 14939>
+  ```
+
+  M：内部节点最大节点个数；L：儿子节点最大数据个数；C：缓存中存储的叶子节点最大个数；D：缓存中存储的内部节点的最大个数
+
+  > 参数由计算+炼丹得到
+
+- ```c++
+  void insert(const Key & _key,const Data & _data)
+  ```
+
+  插入一个数据
+
+- ```c++
+  bool erase(const Key & _key,const Data & _data)
+  ```
+
+  删除一个数据 并返回一个bool值表示是否删除成功
+
+- ```c++
+  void find(const Key & _key,vector<Data> & vec_ans)
+  ```
+
+  找到key值符合的所有数据并塞入到vec当中
+
+  传参vector & 避免了大量赋值
+
+- ```c++
+  void clear()
+  ```
+
+  将整颗b+树清空恢复出厂设置
+
+- ```c++
+  void findAll(vector<Data> & vec_ans)
+  ```
+
+  将b+树所有的数据都塞入到vector当中
+
+  通过最底层叶子结点的链表实现
+
+- ```c++
+  Data & update(const Key & _key,const Data & _data)
+  ```
+
+  功能：实现数据在b+树中的modify，而不需要进行删除和再插入
+
+  原理：利用cache实现，返回cache中存储的数据引用
+
+  ps：需要在获得引用后立刻进行修改，避免该数据被写回文件当中被delete掉
+
