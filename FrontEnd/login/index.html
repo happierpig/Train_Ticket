@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Hugo 0.83.1">
+    <title>Train Ticket System Log in</title>
+    <!-- 万分感谢PaperL和RainyMemory的帮助！！！ -->
+
+
+    
+
+    <!-- Bootstrap core CSS -->
+<link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+
+    
+    <!-- Custom styles for this template -->
+    <link href="signin.css" rel="stylesheet">
+  </head>
+  <body class="text-center">
+    
+<main class="form-signin">
+  <form>
+    <img class="mb-4" src="../assets/brand/12306.jpeg" alt="" width="70" height="70" align="middle">
+    <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
+
+    <div class="form-floating">
+      <input type="text" class="form-control" id="username" placeholder="Username">
+      <label class= "form-label" for="username">Username</label>
+    </div>
+    <div class="form-floating">
+      <input type="password" class="form-control" id="password" placeholder="Password">
+      <label class="form-label" for="password">Password</label>
+    </div>
+    <div class="checkbox mb-3" align="center">
+      <label>
+        <input type="checkbox" value="remember-me" id="checkbox"> Remember me
+      </label>
+    </div>
+    <button id="lgbt" class="w-100 btn btn-lg btn-primary" type="button" onclick="login()">Sign in</button>
+    <hr>
+    <a href=register.html class="mt-5 mb-3 text-reset">Register</a>
+    <p class="mt-5 mb-3 text-muted">Copyright &copy; 2021 ACM Class</p>
+  </form>
+</main>
+
+<script type="text/javascript" src="../js/script.js"></script>
+<script>
+  window.onload = function () {
+    if (getCookie("username") != "") {
+      alert("You have already logged in. ");
+      window.location.href = "main_page.html";
+    }
+  }
+  function login() {
+    if (getCookie("username") != "") {
+      alert("You have already logged in. ");
+      window.location.href = "main_page.html";
+    }
+    var xmlhttp = new XMLHttpRequest();
+    var username = document.getElementById("username").value;
+    var password = document.getElementById("password").value;
+    if (username != "" && password != "") {
+      xmlhttp.open("POST", "../php/login.php", true);
+      xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      xmlhttp.onreadystatechange = function () {
+        if (xmlhttp.readyState == 4) {
+          if (xmlhttp.status == 200) {
+            var returnMsg = xmlhttp.responseText;
+            if (returnMsg != "0") {
+              document.getElementById("lgbt").className = "btn btn-danger btn-block";
+              document.getElementById("lgbt").innerHTML = "Fail";
+              setTimeout(function () {
+                window.location.href = "index.html";
+              }, 3000);
+            }
+            else {
+              document.getElementById("lgbt").className = "btn btn-success btn-block";
+              document.getElementById("lgbt").innerHTML = "Success"; 	
+              var flag = document.getElementById("checkbox").checked;
+              if (flag) setCookie("username", username, 7);
+              else setCookie("username", username);
+              setTimeout(function () { window.location.href = "main_page.html"; }, 1000);
+            }
+          } else {
+            alert("404 Unknown Error #1");
+          }
+        }else{
+          //alert(xmlhttp.readyState);
+        }
+      }
+      document.getElementById("lgbt").innerHTML = "-WAIT-";
+      xmlhttp.send("username=" + username + "&password=" + password);
+    } else {
+      document.getElementById("lgbt").className = "btn btn-warning btn-block";
+      document.getElementById("lgbt").innerHTML = "Invalid input";
+      setTimeout(function () {
+        window.location.href = "index.html";
+      }, 3000);
+    }
+  }
+</script>
+    
+  </body>
+</html>
