@@ -12,6 +12,8 @@
 | [andy-yang-1](https://github.com/andy-yang-1) |    Main procedure｜Web BackEnd|    |
 |   [happypig](https://github.com/happierpig)   | DataStructure｜Web FrontEnd |
 
+具体的技术文档请点[这里](https://github.com/happierpig/Train_Ticket/blob/master/%E7%81%AB%E8%BD%A6%E7%A5%A8%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F%E5%BC%80%E5%8F%91%E6%96%87%E6%A1%A3.md)
+
 ## 概况
 
 #### 组队要求
